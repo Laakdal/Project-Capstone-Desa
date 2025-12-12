@@ -1,12 +1,13 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return redirect('/register');
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', function () {
@@ -17,6 +18,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // User Management Routes
+    Route::get('/manajemen-akun', [UserController::class, 'index'])->name('users.index');
+    Route::get('/manajemen-akun/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/manajemen-akun', [UserController::class, 'store'])->name('users.store');
+    Route::get('/manajemen-akun/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::patch('/manajemen-akun/{id}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/manajemen-akun/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
 require __DIR__.'/auth.php';
