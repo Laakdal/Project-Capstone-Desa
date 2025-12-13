@@ -1,7 +1,7 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
 import RichTextEditor from '@/Components/RichTextEditor';
-import { useState, useEffect } from 'react';
+import Sidebar, { Topbar } from '@/Components/Sidebar';
+import { useEffect } from 'react';
 
 export default function Create() {
     const { data, setData, post, processing, errors } = useForm({
@@ -21,72 +21,249 @@ export default function Create() {
             agama: '',
             pekerjaan: '',
             alamat_lengkap: '',
+            jabatan: '',
         },
     });
 
     const templates = [
-        { id: 'surat_keterangan_domisili', name: 'Surat Keterangan Domisili' },
-        { id: 'surat_pengantar', name: 'Surat Pengantar' },
-        { id: 'surat_keterangan_usaha', name: 'Surat Keterangan Usaha' },
+        { id: 'surat_pengunduran_diri', name: 'Surat Pengunduran Diri' },
+        { id: 'surat_keputusan', name: 'Surat Keputusan (SK)' },
+        { id: 'surat_perintah_perjalanan_dinas', name: 'Surat Perintah Perjalanan Dinas (SPPD)' },
+        { id: 'surat_tugas', name: 'Surat Tugas (ST)' },
+        { id: 'memo', name: 'Memo' },
     ];
 
     const generateTemplateContent = (type) => {
-        // This acts as a client-side template generator for immediate feedback
-        // In a real app, this might come from the server or a more robust template engine
-        if (type === 'surat_keterangan_domisili') {
+        // NOTE: We do NOT include the header here anymore, as it is handled by PDF template
+        // and shown visually above the editor.
+
+        if (type === 'surat_pengunduran_diri') {
             return `
-                <p style="text-align: center"><strong>SURAT KETERANGAN DOMISILI</strong></p>
-                <p style="text-align: center">Nomor: [NOMOR_SURAT]</p>
-                <br>
-                <p>Yang bertanda tangan di bawah ini, Kepala Desa Sukamaju Kecamatan Sukamaju Kabupaten Sukamaju, dengan ini menerangkan bahwa:</p>
-                <br>
-                <table style="border: none; margin-left: 20px;">
-                    <tbody>
-                        <tr><td>Nama</td><td>: [NAMA_LENGKAP]</td></tr>
-                        <tr><td>NIK</td><td>: [NIK]</td></tr>
-                        <tr><td>Tempat/Tgl Lahir</td><td>: [TEMPAT_LAHIR], [TANGGAL_LAHIR]</td></tr>
-                        <tr><td>Jenis Kelamin</td><td>: [JENIS_KELAMIN]</td></tr>
-                        <tr><td>Agama</td><td>: [AGAMA]</td></tr>
-                        <tr><td>Pekerjaan</td><td>: [PEKERJAAN]</td></tr>
-                        <tr><td>Alamat</td><td>: [ALAMAT_LENGKAP]</td></tr>
-                    </tbody>
-                </table>
-                <br>
-                <p>Adalah benar-benar penduduk Desa Sukamaju yang berdomisili di alamat tersebut di atas.</p>
-                <p>Surat keterangan ini dibuat untuk keperluan [KEPERLUAN] dan dapat dipergunakan seperlunya.</p>
-                <p>Demikian surat keterangan ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
-                <br>
-                <div style="text-align: right;">
-                    <p>Sukamaju, [TANGGAL_SURAT]</p>
-                    <p>Kepala Desa Sukamaju</p>
-                    <br><br><br>
-                    <p><strong>[NAMA_KEPALA_DESA]</strong></p>
+                <div style="font-family: 'Times New Roman', serif;">
+                    <div style="text-align: right; margin-bottom: 20px;">
+                        <p>Banjarsari, [TANGGAL_SURAT]</p>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <p>Yth. Kepala Desa Banjarsari</p>
+                        <p>di Tempat</p>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h3 style="text-decoration: underline; margin: 0; font-size: 12pt; font-weight: bold; text-align: center;">SURAT PENGUNDURAN DIRI</h3>
+                    </div>
+                    <p>Yang bertanda tangan di bawah ini:</p>
+                    <table style="border: none; margin-left: 30px; margin-bottom: 15px;">
+                        <tbody>
+                            <tr><td style="width: 150px;">Nama</td><td>: [NAMA_LENGKAP]</td></tr>
+                            <tr><td>Jabatan</td><td>: [JABATAN]</td></tr>
+                            <tr><td>Alamat</td><td>: [ALAMAT_LENGKAP]</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="text-align: justify; margin-bottom: 15px;">
+                        Dengan ini bermaksud mengajukan pengunduran diri dari jabatan saya sebagai [JABATAN] di Pemerintah Desa Banjarsari, Kecamatan Bayongbong, Kabupaten Garut, terhitung mulai tanggal [TANGGAL_EFEKTIF].
+                    </p>
+                    <p style="text-align: justify; margin-bottom: 15px;">
+                        Saya mengucapkan terima kasih yang sebesar-besarnya atas kesempatan yang telah diberikan kepada saya untuk bekerja di Desa Banjarsari. Saya juga memohon maaf apabila selama bekerja terdapat kesalahan dan kekhilafan.
+                    </p>
+                    <p>Demikian surat pengunduran diri ini saya buat dengan kesadaran sendiri tanpa ada paksaan dari pihak manapun.</p>
+                    <br>
+                    <div style="text-align: right; margin-right: 30px;">
+                         <p style="text-align: right;">Hormat saya,</p>
+                         <br><br><br>
+                         <p style="font-weight: bold; text-decoration: underline; text-align: right;">[NAMA_LENGKAP]</p>
+                    </div>
                 </div>
             `;
         }
-        if (type === 'surat_pengantar') {
+
+        if (type === 'surat_keputusan') {
             return `
-                <p style="text-align: center"><strong>SURAT PENGANTAR</strong></p>
-                <p style="text-align: center">Nomor: [NOMOR_SURAT]</p>
-                <br>
-                <p>Yang bertanda tangan di bawah ini menerangkan bahwa:</p>
-                <br>
-                <table style="border: none; margin-left: 20px;">
-                    <tbody>
-                        <tr><td>Nama</td><td>: [NAMA_LENGKAP]</td></tr>
-                        <tr><td>NIK</td><td>: [NIK]</td></tr>
-                        <tr><td>Alamat</td><td>: [ALAMAT_LENGKAP]</td></tr>
-                    </tbody>
-                </table>
-                <br>
-                <p>Orang tersebut adalah benar warga kami yang bermaksud mengurus [KEPERLUAN].</p>
-                <br>
-                <div style="text-align: right;">
-                    <p>Sukamaju, [TANGGAL_SURAT]</p>
-                    <p>Kepala Desa Sukamaju</p>
+                <div style="text-align: center; font-family: 'Times New Roman', serif; margin-bottom: 20px;">
+                    <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-align: center;">KEPUTUSAN KEPALA DESA BANJARSARI</h3>
+                    <p style="margin: 0; font-size: 12pt; text-align: center;">NOMOR: [NOMOR_SURAT]</p>
+                    <h3 style="margin: 15px 0 5px 0; font-size: 12pt; font-weight: bold; text-align: center;">TENTANG</h3>
+                    <h3 style="margin: 0; font-size: 12pt; text-transform: uppercase; font-weight: bold; text-align: center;">[PERIHAL_KEPUTUSAN]</h3>
+                    <h3 style="margin: 15px 0 5px 0; font-size: 12pt; font-weight: bold; text-align: center;">KEPALA DESA BANJARSARI,</h3>
+                </div>
+                <div style="font-family: 'Times New Roman', serif;">
+                    <table style="width: 100%; border: none;">
+                        <tbody>
+                            <tr>
+                                <td style="vertical-align: top; width: 100px; font-weight: bold;">Menimbang</td>
+                                <td style="vertical-align: top; width: 20px;">:</td>
+                                <td style="text-align: justify;">
+                                    <ol style="margin: 0; padding-left: 20px;">
+                                        <li>bahwa [KONSIDERANS_A];</li>
+                                        <li>bahwa [KONSIDERANS_B];</li>
+                                    </ol>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; font-weight: bold;">Mengingat</td>
+                                <td style="vertical-align: top;">:</td>
+                                <td style="text-align: justify;">
+                                     <ol style="margin: 0; padding-left: 20px;">
+                                        <li>Undang-Undang Nomor 6 Tahun 2014 wacana Desa;</li>
+                                        <li>[DASAR_HUKUM_LAINNYA];</li>
+                                    </ol>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <h3 style="margin: 0; font-size: 12pt; font-weight: bold; text-align: center;">MEMUTUSKAN:</h3>
+                    </div>
+                    <table style="width: 100%; border: none;">
+                        <tbody>
+                            <tr>
+                                <td style="vertical-align: top; width: 100px; font-weight: bold;">Menetapkan</td>
+                                <td style="vertical-align: top; width: 20px;">:</td>
+                                <td style="font-weight: bold;">[JUDUL_KEPUTUSAN]</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; font-weight: bold;">KESATU</td>
+                                <td style="vertical-align: top;">:</td>
+                                <td style="text-align: justify;">[ISI_PUTUSAN_KESATU]</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; font-weight: bold;">KEDUA</td>
+                                <td style="vertical-align: top;">:</td>
+                                <td style="text-align: justify;">[ISI_PUTUSAN_KEDUA]</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top; font-weight: bold;">KETIGA</td>
+                                <td style="vertical-align: top;">:</td>
+                                <td style="text-align: justify;">Keputusan ini mulai berlaku pada tanggal ditetapkan.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                     <br><br>
+                    <div style="float: right; width: 300px;">
+                        <p>Ditetapkan di: Banjarsari</p>
+                        <p>Pada tanggal: [TANGGAL_SURAT]</p>
+                        <p style="margin-top: 10px;">Kepala Desa Banjarsari,</p>
+                        <br><br><br>
+                        <p style="font-weight: bold; text-decoration: underline;">[NAMA_KEPALA_DESA]</p>
+                    </div>
+                    <div style="clear: both;"></div>
                 </div>
             `;
         }
+
+        if (type === 'surat_perintah_perjalanan_dinas') {
+            return `
+                <div style="text-align: center; font-family: 'Times New Roman', serif; margin-bottom: 20px;">
+                    <h3 style="text-decoration: underline; margin: 0; font-size: 12pt; font-weight: bold; text-align: center;">SURAT PERINTAH PERJALANAN DINAS</h3>
+                    <p style="margin: 0; font-size: 12pt; text-align: center;">Nomor : [NOMOR_SURAT]</p>
+                </div>
+                <div style="font-family: 'Times New Roman', serif;">
+                    <table style="width: 100%; border-collapse: collapse; border: 1px solid black;">
+                        <tbody>
+                            <tr><td style="border: 1px solid black; padding: 5px;">1.</td><td style="border: 1px solid black; padding: 5px;">Pejabat berwenang yang memberi perintah</td><td style="border: 1px solid black; padding: 5px;">Kepala Desa Banjarsari</td></tr>
+                            <tr><td style="border: 1px solid black; padding: 5px;">2.</td><td style="border: 1px solid black; padding: 5px;">Nama Pegawai yang diperintah</td><td style="border: 1px solid black; padding: 5px;">[NAMA_PEGAWAI]</td></tr>
+                            <tr><td style="border: 1px solid black; padding: 5px;">3.</td><td style="border: 1px solid black; padding: 5px;">a. Pangkat dan Golongan<br>b. Jabatan / Instansi<br>c. Tingkat Biaya Perjalanan Dinas</td><td style="border: 1px solid black; padding: 5px;">a. [PANGKAT]<br>b. [JABATAN]<br>c. [TINGKAT_BIAYA]</td></tr>
+                            <tr><td style="border: 1px solid black; padding: 5px;">4.</td><td style="border: 1px solid black; padding: 5px;">Maksud Perjalanan Dinas</td><td style="border: 1px solid black; padding: 5px;">[MAKSUD_PERJALANAN]</td></tr>
+                            <tr><td style="border: 1px solid black; padding: 5px;">5.</td><td style="border: 1px solid black; padding: 5px;">Alat angkut yang dipergunakan</td><td style="border: 1px solid black; padding: 5px;">[ALAT_ANGKUT]</td></tr>
+                            <tr><td style="border: 1px solid black; padding: 5px;">6.</td><td style="border: 1px solid black; padding: 5px;">a. Tempat Berangkat<br>b. Tempat Tujuan</td><td style="border: 1px solid black; padding: 5px;">a. Desa Banjarsari<br>b. [TEMPAT_TUJUAN]</td></tr>
+                            <tr><td style="border: 1px solid black; padding: 5px;">7.</td><td style="border: 1px solid black; padding: 5px;">a. Lamanya Perjalanan Dinas<br>b. Tanggal Berangkat<br>c. Tanggal Harus Kembali</td><td style="border: 1px solid black; padding: 5px;">a. [LAMA_HARI] hari<br>b. [TGL_BERANGKAT]<br>c. [TGL_KEMBALI]</td></tr>
+                        </tbody>
+                    </table>
+                    <br>
+                     <div style="float: right; width: 300px; text-align: left;">
+                        <p>Dikeluarkan di: Banjarsari</p>
+                        <p>Pada tanggal: [TANGGAL_SURAT]</p>
+                        <p style="margin-top: 10px;">Kepala Desa Banjarsari,</p>
+                        <br><br><br>
+                        <p style="font-weight: bold; text-decoration: underline;">[NAMA_KEPALA_DESA]</p>
+                    </div>
+                    <div style="clear: both;"></div>
+                </div>
+            `;
+        }
+
+        if (type === 'surat_tugas') {
+            return `
+                <div style="text-align: center; font-family: 'Times New Roman', serif; margin-bottom: 20px;">
+                    <h3 style="text-decoration: underline; margin: 0; font-size: 12pt; font-weight: bold; text-align: center;">SURAT TUGAS</h3>
+                    <p style="margin: 0; font-size: 12pt; text-align: center;">Nomor : [NOMOR_SURAT]</p>
+                </div>
+                <div style="font-family: 'Times New Roman', serif;">
+                    <p>Yang bertanda tangan di bawah ini:</p>
+                    <table style="border: none; margin-left: 30px;">
+                        <tbody>
+                            <tr><td style="width: 150px;">Nama</td><td>: [NAMA_KEPALA_DESA]</td></tr>
+                            <tr><td>Jabatan</td><td>: Kepala Desa Banjarsari</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 15px;">Memberikan tugas kepada:</p>
+                    <table style="border: none; margin-left: 30px;">
+                        <tbody>
+                            <tr><td style="width: 150px;">Nama</td><td>: [NAMA_PEGAWAI]</td></tr>
+                            <tr><td>Jabatan</td><td>: [JABATAN]</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 15px; text-align: justify;">
+                        Untuk melaksanakan tugas [DESKRIPSI_TUGAS] yang akan dilaksanakan pada:
+                    </p>
+                    <table style="border: none; margin-left: 30px;">
+                        <tbody>
+                            <tr><td style="width: 150px;">Hari/Tanggal</td><td>: [HARI_TANGGAL]</td></tr>
+                            <tr><td>Waktu</td><td>: [WAKTU]</td></tr>
+                            <tr><td>Tempat</td><td>: [TEMPAT]</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 15px; text-align: justify;">
+                        Demikian surat tugas ini diberikan untuk dapat dilaksanakan dengan penuh tanggung jawab.
+                    </p>
+                    <br><br>
+                    <div style="float: right; width: 300px; text-align: left;">
+                        <p>Banjarsari, [TANGGAL_SURAT]</p>
+                        <p>Kepala Desa Banjarsari,</p>
+                        <br><br><br>
+                        <p style="font-weight: bold; text-decoration: underline;">[NAMA_KEPALA_DESA]</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (type === 'memo') {
+            return `
+                <div style="font-family: 'Times New Roman', serif; border: 2px solid black; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0; text-decoration: underline; font-weight: bold; text-align: center;">MEMO INTERNAL</h2>
+                    </div>
+                    <table style="width: 100%; margin-bottom: 20px;">
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: bold; width: 100px;">Dari</td>
+                                <td>: [PENGIRIM]</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">Kepada</td>
+                                <td>: [PENERIMA]</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">Tanggal</td>
+                                <td>: [TANGGAL_SURAT]</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">Perihal</td>
+                                <td>: [PERIHAL]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr style="border-top: 2px solid black; margin-bottom: 20px;">
+                    <div style="min-height: 200px;">
+                        [ISI_MEMO]
+                    </div>
+                    <br>
+                    <div style="float: right;">
+                        <p style="font-weight: bold;">[PENGIRIM]</p>
+                    </div>
+                    <div style="clear: both;"></div>
+                </div>
+            `;
+        }
+
         return '';
     };
 
@@ -103,163 +280,175 @@ export default function Create() {
         setData('meta_data', { ...data.meta_data, [field]: value });
     };
 
-    // Auto-update content when meta fields change (simple replace)
-    useEffect(() => {
-        if (!data.template_type) return;
+    const handlePreview = () => {
+        // Create a temporary form to submit to the preview route in a new tab
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = route('letters.preview_pdf');
+        form.target = '_blank';
 
-        // This is a simplified way to keep the preview live-updated without re-rendering everything destructively
-        // In a real Tiptap implementation, we might use placeholders or nodes. 
-        // For this PBI, we will keep it simple: The user can edit the text manually, 
-        // or we give them the template and they fill it.
-        // If we hard-replace every time, we lose their custom edits.
-        // So, we only set content on template change.
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+        }
 
-    }, [data.meta_data]);
+        // Add content
+        const contentInput = document.createElement('input');
+        contentInput.type = 'hidden';
+        contentInput.name = 'content';
+        contentInput.value = data.content;
+        form.appendChild(contentInput);
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    };
 
     const submit = (status) => {
-        setData('status', status);
-        // We need to pass the status immediately, so we can't rely on state update for this sync call
-        // Actually, helper doesn't support immediate override like that easily with post.
-        // We can do manual transformation.
         data.status = status;
         post(route('letters.store'));
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Pembuatan Surat
-                </h2>
-            }
-        >
+        <div className="flex h-screen bg-gray-50">
             <Head title="Pembuatan Surat" />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="flex gap-6">
-                        {/* Sidebar / Form Controls */}
-                        <div className="w-1/3 space-y-6">
-                            <div className="bg-white p-6 shadow sm:rounded-lg">
-                                <h3 className="text-lg font-medium mb-4">Detail Surat</h3>
+            {/* Sidebar */}
+            <Sidebar />
 
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Pilih Template</label>
-                                        <select
-                                            value={data.template_type}
-                                            onChange={handleTemplateChange}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            {/* Main Content */}
+            <main className="flex-1 overflow-auto">
+                <Topbar pageTitle="Pembuatan Surat" />
+
+                <div className="p-6">
+                    <div className="mx-auto max-w-7xl">
+                        <div className="flex gap-6">
+                            {/* Form Controls */}
+                            <div className="w-1/3 space-y-6">
+                                <div className="bg-white p-6 shadow sm:rounded-lg">
+                                    <h3 className="text-lg font-medium mb-4">Detail Surat</h3>
+
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Pilih Template</label>
+                                            <select
+                                                value={data.template_type}
+                                                onChange={handleTemplateChange}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            >
+                                                <option value="">-- Pilih Template --</option>
+                                                {templates.map(t => (
+                                                    <option key={t.id} value={t.id}>{t.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Nomor Surat</label>
+                                            <input
+                                                type="text"
+                                                value={data.letter_number}
+                                                onChange={e => setData('letter_number', e.target.value)}
+                                                placeholder="Auto Generate / Manual"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Perihal</label>
+                                            <input
+                                                type="text"
+                                                value={data.meta_data.perihal}
+                                                onChange={e => handleMetaChange('perihal', e.target.value)}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            />
+                                        </div>
+
+                                        <hr className="my-4" />
+                                        <h4 className="font-medium text-sm text-gray-500">Data Pegawai/Terkait</h4>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                                            <input
+                                                type="text"
+                                                value={data.meta_data.nama_lengkap}
+                                                onChange={e => handleMetaChange('nama_lengkap', e.target.value)}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Jabatan</label>
+                                            <input
+                                                type="text"
+                                                value={data.meta_data.jabatan}
+                                                onChange={e => handleMetaChange('jabatan', e.target.value)}
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-6 flex flex-col gap-2">
+                                        <button
+                                            onClick={() => submit('draft')}
+                                            disabled={processing}
+                                            className="w-full bg-gray-200 text-gray-800 rounded py-2 hover:bg-gray-300"
                                         >
-                                            <option value="">-- Pilih Template --</option>
-                                            {templates.map(t => (
-                                                <option key={t.id} value={t.id}>{t.name}</option>
-                                            ))}
-                                        </select>
-                                        {errors.template_type && <span className="text-red-500 text-xs">{errors.template_type}</span>}
+                                            Simpan Draft
+                                        </button>
+                                        <button
+                                            onClick={handlePreview}
+                                            type="button"
+                                            className="w-full bg-indigo-100 text-indigo-700 rounded py-2 hover:bg-indigo-200"
+                                        >
+                                            Preview PDF
+                                        </button>
+                                        <button
+                                            onClick={() => submit('sent')}
+                                            disabled={processing}
+                                            className="w-full bg-green-600 text-white rounded py-2 hover:bg-green-700"
+                                        >
+                                            Kirim Surat
+                                        </button>
                                     </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Nomor Surat</label>
-                                        <input
-                                            type="text"
-                                            value={data.letter_number}
-                                            onChange={e => setData('letter_number', e.target.value)}
-                                            placeholder="Auto Generate / Manual"
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Perihal</label>
-                                        <input
-                                            type="text"
-                                            value={data.meta_data.perihal}
-                                            onChange={e => handleMetaChange('perihal', e.target.value)}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Tujuan Surat</label>
-                                        <input
-                                            type="text"
-                                            value={data.meta_data.tujuan}
-                                            onChange={e => handleMetaChange('tujuan', e.target.value)}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Lampiran</label>
-                                        <input
-                                            type="text"
-                                            value={data.meta_data.lampiran}
-                                            onChange={e => handleMetaChange('lampiran', e.target.value)}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        />
-                                    </div>
-
-                                    <hr className="my-4" />
-                                    <h4 className="font-medium text-sm text-gray-500">Data Warga (Untuk Template)</h4>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                                        <input
-                                            type="text"
-                                            value={data.meta_data.nama_lengkap}
-                                            onChange={e => handleMetaChange('nama_lengkap', e.target.value)}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">NIK</label>
-                                        <input
-                                            type="text"
-                                            value={data.meta_data.nik}
-                                            onChange={e => handleMetaChange('nik', e.target.value)}
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="mt-6 flex flex-col gap-2">
-                                    <button
-                                        type="button" // Use type button to prevent form submit default
-                                        onClick={() => alert('Fitur Preview PDF belum terintegrasi dengan data real-time sebelum save. Silakan simpan draft lalu preview.')}
-                                        className="w-full bg-blue-600 text-white rounded py-2 hover:bg-blue-700"
-                                    >
-                                        Preview PDF
-                                    </button>
-                                    <button
-                                        onClick={() => submit('draft')}
-                                        disabled={processing}
-                                        className="w-full bg-gray-200 text-gray-800 rounded py-2 hover:bg-gray-300"
-                                    >
-                                        Simpan Draft
-                                    </button>
-                                    <button
-                                        onClick={() => submit('sent')}
-                                        disabled={processing}
-                                        className="w-full bg-green-600 text-white rounded py-2 hover:bg-green-700"
-                                    >
-                                        Kirim Surat
-                                    </button>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Editor Area */}
-                        <div className="w-2/3">
-                            <div className="bg-white p-6 shadow sm:rounded-lg min-h-[600px]">
-                                <RichTextEditor
-                                    content={data.content}
-                                    onChange={(html) => setData('content', html)}
-                                />
+                            {/* Editor Area */}
+                            <div className="w-2/3">
+                                <div className="bg-white p-6 shadow sm:rounded-lg min-h-[800px] flex flex-col">
+                                    {/* Visual Header (Not Editable) */}
+                                    <div className="mb-4 pointer-events-none select-none" style={{
+                                        marginBottom: '15px',
+                                        fontFamily: "'Times New Roman', serif",
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                            <div style={{ width: '15%', textAlign: 'center' }}>
+                                                <img src="/logo_desa.png" alt="Logo" style={{ height: '90px', width: 'auto' }} />
+                                            </div>
+                                            <div style={{ width: '85%', textAlign: 'center', paddingRight: '15%' }}>
+                                                <p style={{ margin: 0, fontSize: '14pt', fontWeight: 'bold', lineHeight: 1.1 }}>PEMERINTAH KABUPATEN GARUT</p>
+                                                <p style={{ margin: 0, fontSize: '14pt', fontWeight: 'bold', lineHeight: 1.1 }}>KECAMATAN BAYONGBONG</p>
+                                                <p style={{ margin: 0, fontSize: '18pt', fontWeight: '900', lineHeight: 1.1 }}>DESA BANJARSARI</p>
+                                                <p style={{ margin: 0, fontSize: '11pt', fontStyle: 'italic', marginTop: '5px' }}>Alamat : Jln. Ciloa No. 09 Banjarsari Bayongbong Garut - 44162</p>
+                                            </div>
+                                        </div>
+                                        <div style={{ borderBottom: '3px solid #8B4513', marginTop: '10px', width: '100%' }}></div>
+                                    </div>
+
+                                    <RichTextEditor
+                                        content={data.content}
+                                        onChange={(html) => setData('content', html)}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </AuthenticatedLayout>
+            </main>
+        </div>
     );
 }

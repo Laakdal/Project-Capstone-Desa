@@ -36,7 +36,15 @@ class LetterController extends Controller
             abort(403);
         }
 
-        $pdf = Pdf::loadView('letters.pdf', ['letter' => $letter]);
-        return $pdf->stream('surat-' . $letter->id . '.pdf');
+        $pdf = Pdf::loadView('letters.pdf', ['letterContent' => $letter->content]);
+        return $pdf->stream('Surat_' . $letter->id . '.pdf');
+    }
+
+    public function previewPdf(Request $request)
+    {
+        $content = $request->input('content');
+        // We might want to validate or sanitize, but for preview it's okay.
+        $pdf = Pdf::loadView('letters.pdf', ['letterContent' => $content]);
+        return $pdf->stream('preview.pdf');
     }
 }

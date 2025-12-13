@@ -58,15 +58,15 @@ const MenuBar = ({ editor }) => {
             >
                 Right
             </button>
-             <div className="w-px h-6 bg-gray-300 mx-1 self-center"></div>
-             <button
+            <div className="w-px h-6 bg-gray-300 mx-1 self-center"></div>
+            <button
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
                 className={buttonClass(editor.isActive('bulletList'))}
                 title="Bullet List"
             >
                 • List
             </button>
-             <button
+            <button
                 onClick={() => editor.chain().focus().toggleOrderedList().run()}
                 className={buttonClass(editor.isActive('orderedList'))}
                 title="Ordered List"
@@ -103,11 +103,7 @@ export default function RichTextEditor({ content, onChange, editable = true }) {
     // Update content if it changes externally
     useEffect(() => {
         if (editor && content !== editor.getHTML()) {
-             // Only set content if it's different to avoid cursor jumping
-             // This is a simple check; for production might need better diffing
-             if (editor.getText() === '' && content !== '') {
-                 editor.commands.setContent(content);
-             }
+            editor.commands.setContent(content);
         }
     }, [content, editor]);
 
