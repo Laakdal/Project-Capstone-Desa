@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import Topbar from '@/Components/Topbar';
 import { Search, Plus, Edit2, Trash2, Users, UserCheck, Crown, Briefcase } from 'lucide-react';
@@ -191,12 +191,13 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-2">
-                                                            <button 
+                                                            <Link
+                                                                href={`/manajemen-akun/${user.id}/edit`}
                                                                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                                                 title="Edit"
                                                             >
                                                                 <Edit2 size={18} />
-                                                            </button>
+                                                            </Link>
                                                             <button 
                                                                 className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                                 title="Hapus"

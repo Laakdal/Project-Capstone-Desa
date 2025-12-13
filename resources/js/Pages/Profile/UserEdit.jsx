@@ -1,39 +1,38 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import DeleteUserForm from './Partials/DeleteUserForm';
-import UpdatePasswordForm from './Partials/UpdatePasswordForm';
-import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+import Sidebar from '@/Components/Sidebar';
+import Topbar from '@/Components/Topbar';
 
-export default function Edit({ mustVerifyEmail, status }) {
+export default function UserEdit({ user }) {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Profile
-                </h2>
-            }
-        >
-            <Head title="Profile" />
+        <div className="flex h-screen bg-gray-50">
+            <Head title="Edit User" />
+            
+            {/* Sidebar */}
+            <Sidebar />
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdateProfileInformationForm
-                            mustVerifyEmail={mustVerifyEmail}
-                            status={status}
-                            className="max-w-xl"
-                        />
-                    </div>
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Topbar */}
+                <Topbar pageTitle="Edit User" />
 
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <UpdatePasswordForm className="max-w-xl" />
+                {/* Page Content */}
+                <main className="flex-1 overflow-y-auto">
+                    <div className="p-6">
+                        <h2 className="text-xl font-semibold text-gray-800">Edit User Form</h2>
+                        <p className="text-gray-600 mt-2">Form untuk mengedit user akan ditambahkan di sini.</p>
+                        
+                        {/* User data preview */}
+                        {user && (
+                            <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
+                                <h3 className="font-semibold mb-2">User Data:</h3>
+                                <pre className="text-sm text-gray-600">
+                                    {JSON.stringify(user, null, 2)}
+                                </pre>
+                            </div>
+                        )}
                     </div>
-
-                    <div className="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                        <DeleteUserForm className="max-w-xl" />
-                    </div>
-                </div>
+                </main>
             </div>
-        </AuthenticatedLayout>
+        </div>
     );
 }

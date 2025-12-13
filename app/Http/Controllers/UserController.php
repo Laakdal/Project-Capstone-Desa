@@ -95,9 +95,17 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        // TODO: Get user data from database
-        return Inertia::render('Profile/EditUser', [
-            'user' => []
+        $user = User::findOrFail($id);
+        
+        return Inertia::render('Profile/UserEdit', [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'status' => $user->status,
+                'last_login' => $user->last_login ? $this->formatLastLogin($user->last_login) : 'Belum pernah login'
+            ]
         ]);
     }
 
