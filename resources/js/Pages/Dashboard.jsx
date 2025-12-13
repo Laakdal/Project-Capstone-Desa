@@ -1,5 +1,7 @@
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
+import Sidebar from '@/Components/Sidebar';
+import Topbar from '@/Components/Topbar';
 
 export default function Dashboard() {
     const [activeTab, setActiveTab] = useState('arsip');
@@ -64,87 +66,18 @@ export default function Dashboard() {
         }
     ];
 
-    const menuItems = [
-        { icon: '🏠', label: 'Dashboard', count: null, active: true },
-        { icon: '📄', label: 'Arsip Dokumen', count: null, active: false },
-        { icon: '📨', label: 'Surat Masuk', count: null, active: false },
-        { icon: '📤', label: 'Surat Keluar', count: null, active: false },
-        { icon: '📋', label: 'Surat Keterangan', count: 12, active: false },
-        { icon: '📬', label: 'Surat Pengantar', count: 8, active: false },
-        { icon: '📝', label: 'Surat Permohonan', count: 5, active: false },
-        { icon: '📮', label: 'Surat Undangan', count: 3, active: false }
-    ];
-
     return (
         <>
             <Head title="SiArsip Desa" />
             
             <div className="flex h-screen bg-gray-50">
                 {/* Sidebar */}
-                <aside className="w-64 bg-white border-r border-gray-200">
-                    <div className="p-4 border-b border-gray-200">
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white font-bold">
-                                S
-                            </div>
-                            <span className="font-semibold text-gray-800">SiArsip Desa</span>
-                        </div>
-                    </div>
-
-                    <div className="p-4">
-                        <button className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                            <span>+</span>
-                            <span>Buat Folder Baru</span>
-                        </button>
-                    </div>
-
-                    <nav className="px-2">
-                        {menuItems.map((item, index) => (
-                            <button
-                                key={index}
-                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg mb-1 ${
-                                    item.active
-                                        ? 'bg-blue-50 text-blue-600'
-                                        : 'text-gray-700 hover:bg-gray-50'
-                                }`}
-                            >
-                                <span>{item.icon}</span>
-                                <span className="flex-1 text-left text-sm">{item.label}</span>
-                                {item.count && (
-                                    <span className="text-xs text-gray-500">{item.count}</span>
-                                )}
-                            </button>
-                        ))}
-                    </nav>
-
-                    <div className="absolute bottom-0 w-64 p-4 border-t border-gray-200">
-                        <button className="w-full flex items-center gap-2 text-gray-700 hover:bg-gray-50 px-3 py-2 rounded-lg">
-                            <span>⚙️</span>
-                            <span className="text-sm">Pengaturan</span>
-                        </button>
-                        <button className="w-full flex items-center gap-2 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg mt-1">
-                            <span>🚪</span>
-                            <span className="text-sm">Keluar</span>
-                        </button>
-                    </div>
-                </aside>
+                <Sidebar />
 
                 {/* Main Content */}
                 <main className="flex-1 overflow-auto">
-                    {/* Header */}
-                    <header className="bg-white border-b border-gray-200 px-6 py-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="text-sm text-gray-600">Admin (Sidoarjo)</span>
-                                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                                    <span className="text-sm font-semibold">SN</span>
-                                </div>
-                            </div>
-                        </div>
-                    </header>
+                    {/* Topbar */}
+                    <Topbar pageTitle="Dashboard" />
 
                     {/* Content */}
                     <div className="p-6">
