@@ -15,6 +15,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create Admin Dev
+        User::create([
+            'name' => 'jeffrey epstein',
+            'email' => 'efn@efn.com',
+            'password' => bcrypt('password'),
+            'role' => 'Kepala Desa',
+            'status' => 'Aktif',
+            'last_login' => now()->subMinutes(2),
+        ]);
+        
         // Create Kepala Desa
         User::create([
             'name' => 'Budi Santoso',

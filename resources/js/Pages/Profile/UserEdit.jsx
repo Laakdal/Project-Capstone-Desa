@@ -94,11 +94,24 @@ export default function UserEdit({ user }) {
                                         <input
                                             type="text"
                                             value={data.nik}
-                                            onChange={e => setData('nik', e.target.value)}
-                                            placeholder="Masukkan NIK"
+                                            onChange={e => {
+                                                // Hanya terima angka
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                // Maksimal 16 digit
+                                                if (value.length <= 16) {
+                                                    setData('nik', value);
+                                                }
+                                            }}
+                                            placeholder="Masukkan NIK (16 digit)"
+                                            maxLength="16"
+                                            pattern="[0-9]*"
+                                            inputMode="numeric"
                                             className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         />
                                         {errors.nik && <div className="text-red-500 text-xs mt-1">{errors.nik}</div>}
+                                        {data.nik && data.nik.length < 16 && (
+                                            <div className="text-yellow-600 text-xs mt-1">NIK harus 16 digit ({data.nik.length}/16)</div>
+                                        )}
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -116,11 +129,24 @@ export default function UserEdit({ user }) {
                                         <input
                                             type="text"
                                             value={data.phone}
-                                            onChange={e => setData('phone', e.target.value)}
+                                            onChange={e => {
+                                                // Hanya terima angka
+                                                const value = e.target.value.replace(/\D/g, '');
+                                                // Maksimal 15 digit (standar internasional)
+                                                if (value.length <= 15) {
+                                                    setData('phone', value);
+                                                }
+                                            }}
                                             placeholder="08xxxxxxxxxx"
+                                            maxLength="15"
+                                            pattern="[0-9]*"
+                                            inputMode="numeric"
                                             className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         />
                                         {errors.phone && <div className="text-red-500 text-xs mt-1">{errors.phone}</div>}
+                                        {data.phone && data.phone.length < 10 && (
+                                            <div className="text-yellow-600 text-xs mt-1">No. telepon minimal 10 digit</div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
