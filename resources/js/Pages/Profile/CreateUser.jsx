@@ -1,19 +1,20 @@
-import { Head, useForm, Link, usePage } from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react';
 import Sidebar, { Topbar } from '@/Components/Sidebar';
+import { useState } from 'react';
 
-export default function UserEdit({ user }) {
-    const { data, setData, patch, processing, errors } = useForm({
-        name: user.name || '',
-        nik: user.nik || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        role: user.role || '',
-        jabatan: user.jabatan || '',
-        divisi: user.divisi || '',
-        status: user.status || 'Aktif',
-        username: user.username || '',
-        password: '', // Leave empty to keep existing password
-        permissions: user.permissions || {
+export default function CreateUser() {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        name: '',
+        nik: '',
+        email: '',
+        phone: '',
+        role: '',
+        jabatan: '',
+        divisi: '',
+        status: 'Aktif',
+        username: '',
+        password: '',
+        permissions: {
             kelola_penduduk: false,
             kelola_surat: false,
             kelola_keuangan: false,
@@ -36,22 +37,12 @@ export default function UserEdit({ user }) {
 
     const submit = (e) => {
         e.preventDefault();
-        
-        // Check if we're on profile edit page or user edit page
-        // If URL contains '/profile', use profile.update route with PATCH method
-        // Otherwise use users.update route with PATCH method
-        const isProfileEdit = window.location.pathname === '/profile';
-        
-        if (isProfileEdit) {
-            patch(route('profile.update'));
-        } else {
-            patch(route('users.update', user.id));
-        }
+        post(route('users.store'));
     };
 
     return (
         <div className="flex h-screen bg-gray-50">
-            <Head title="Edit Akun" />
+            <Head title="Tambah Akun Baru" />
 
             {/* Sidebar */}
             <Sidebar />
@@ -68,17 +59,17 @@ export default function UserEdit({ user }) {
                             <span className="mx-2">›</span>
                             <Link href={route('users.index')} className="hover:text-blue-600">Manajemen Akun</Link>
                             <span className="mx-2">›</span>
-                            <span className="text-gray-900 font-medium">Edit Akun</span>
+                            <span className="text-gray-900 font-medium">Tambah Akun</span>
                         </div>
 
                         {/* Info Alert */}
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
                             <div className="bg-blue-100 p-2 rounded-full text-blue-600">
-                                ✏️
+                                👤
                             </div>
                             <div>
-                                <h3 className="text-blue-900 font-medium">Edit Informasi Akun</h3>
-                                <p className="text-blue-700 text-sm mt-1">Perbarui informasi akun pengguna di bawah ini</p>
+                                <h3 className="text-blue-900 font-medium">Informasi Akun Baru</h3>
+                                <p className="text-blue-700 text-sm mt-1">Lengkapi form di bawah untuk membuat akun baru</p>
                             </div>
                         </div>
 
@@ -104,24 +95,11 @@ export default function UserEdit({ user }) {
                                         <input
                                             type="text"
                                             value={data.nik}
-                                            onChange={e => {
-                                                // Hanya terima angka
-                                                const value = e.target.value.replace(/\D/g, '');
-                                                // Maksimal 16 digit
-                                                if (value.length <= 16) {
-                                                    setData('nik', value);
-                                                }
-                                            }}
-                                            placeholder="Masukkan NIK (16 digit)"
-                                            maxLength="16"
-                                            pattern="[0-9]*"
-                                            inputMode="numeric"
+                                            onChange={e => setData('nik', e.target.value)}
+                                            placeholder="Masukkan NIK"
                                             className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         />
                                         {errors.nik && <div className="text-red-500 text-xs mt-1">{errors.nik}</div>}
-                                        {data.nik && data.nik.length < 16 && (
-                                            <div className="text-yellow-600 text-xs mt-1">NIK harus 16 digit ({data.nik.length}/16)</div>
-                                        )}
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -139,24 +117,11 @@ export default function UserEdit({ user }) {
                                         <input
                                             type="text"
                                             value={data.phone}
-                                            onChange={e => {
-                                                // Hanya terima angka
-                                                const value = e.target.value.replace(/\D/g, '');
-                                                // Maksimal 15 digit (standar internasional)
-                                                if (value.length <= 15) {
-                                                    setData('phone', value);
-                                                }
-                                            }}
+                                            onChange={e => setData('phone', e.target.value)}
                                             placeholder="08xxxxxxxxxx"
-                                            maxLength="15"
-                                            pattern="[0-9]*"
-                                            inputMode="numeric"
                                             className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                         />
                                         {errors.phone && <div className="text-red-500 text-xs mt-1">{errors.phone}</div>}
-                                        {data.phone && data.phone.length < 10 && (
-                                            <div className="text-yellow-600 text-xs mt-1">No. telepon minimal 10 digit</div>
-                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -230,18 +195,18 @@ export default function UserEdit({ user }) {
                                         {errors.username && <div className="text-red-500 text-xs mt-1">{errors.username}</div>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Password Baru (Opsional)</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Password Sementara</label>
                                         <div className="relative">
                                             <input
                                                 type="text"
                                                 value={data.password}
                                                 onChange={e => setData('password', e.target.value)}
-                                                placeholder="Kosongkan jika tidak diubah"
+                                                placeholder="Masukkan password"
                                                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-10"
                                             />
                                             <span className="absolute right-3 top-2.5 text-gray-400">👁️</span>
                                         </div>
-                                        <p className="text-xs text-gray-500 mt-1">Hanya isi jika ingin mengganti password</p>
+                                        <p className="text-xs text-gray-500 mt-1">Password bisa diubah oleh pengguna setelah login</p>
                                         {errors.password && <div className="text-red-500 text-xs mt-1">{errors.password}</div>}
                                     </div>
                                 </div>
@@ -315,14 +280,21 @@ export default function UserEdit({ user }) {
                                     href={route('users.index')}
                                     className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
                                 >
-                                    ← Batal & Kembali
+                                    ← Kembali
                                 </Link>
+                                <button
+                                    type="button"
+                                    onClick={() => reset()}
+                                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+                                >
+                                    Reset Form
+                                </button>
                                 <button
                                     type="submit"
                                     disabled={processing}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2"
                                 >
-                                    <span>💾</span> Simpan Perubahan
+                                    <span>+</span> Buat Akun
                                 </button>
                             </div>
                         </form>

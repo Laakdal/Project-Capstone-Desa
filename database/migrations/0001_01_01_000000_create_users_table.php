@@ -14,10 +14,29 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            
+            // Personal Information
+            $table->string('username')->unique()->nullable();
+            $table->string('nik')->nullable();
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->string('phone')->nullable();
+            
+            // Role & Position
+            $table->string('role')->default('Pegawai Desa');
+            $table->string('jabatan')->nullable();
+            $table->string('divisi')->nullable();
+            
+            // Status & Activity
+            $table->enum('status', ['Aktif', 'Nonaktif'])->default('Aktif');
+            $table->timestamp('last_login')->nullable();
+            
+            // Authentication
             $table->string('password');
             $table->rememberToken();
+            
+            // Permissions
+            $table->json('permissions')->nullable();
+            
             $table->timestamps();
         });
 

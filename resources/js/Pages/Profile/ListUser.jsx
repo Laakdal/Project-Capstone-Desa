@@ -1,10 +1,11 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import Topbar from '@/Components/Topbar';
 import { Search, Plus, Edit2, Trash2, Users, UserCheck, Crown, Briefcase } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ListUser({ users: initialUsers = [], statistics = {} }) {
+    const { auth } = usePage().props; // Get authenticated user
     const [searchQuery, setSearchQuery] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
 
@@ -27,54 +28,54 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
 
     // Helper function to get status color
     const getStatusColor = (status) => {
-        return status === 'Aktif' 
-            ? 'bg-green-100 text-green-700' 
+        return status === 'Aktif'
+            ? 'bg-green-100 text-green-700'
             : 'bg-gray-100 text-gray-700';
     };
 
     // Statistics cards - use data from backend or show '-'
     const stats = [
-        { 
-            label: 'Total Pengguna', 
-            value: statistics?.total_users ?? '-', 
-            icon: Users, 
-            color: 'bg-blue-50 text-blue-600', 
-            iconBg: 'bg-blue-100' 
+        {
+            label: 'Total Pengguna',
+            value: statistics?.total_users ?? '-',
+            icon: Users,
+            color: 'bg-blue-50 text-blue-600',
+            iconBg: 'bg-blue-100'
         },
-        { 
-            label: 'Pengguna Aktif', 
-            value: statistics?.active_users ?? '-', 
-            icon: UserCheck, 
-            color: 'bg-green-50 text-green-600', 
-            iconBg: 'bg-green-100' 
+        {
+            label: 'Pengguna Aktif',
+            value: statistics?.active_users ?? '-',
+            icon: UserCheck,
+            color: 'bg-green-50 text-green-600',
+            iconBg: 'bg-green-100'
         },
-        { 
-            label: 'Kepala Desa', 
-            value: statistics?.kepala_desa ?? '-', 
-            icon: Crown, 
-            color: 'bg-purple-50 text-purple-600', 
-            iconBg: 'bg-purple-100' 
+        {
+            label: 'Kepala Desa',
+            value: statistics?.kepala_desa ?? '-',
+            icon: Crown,
+            color: 'bg-purple-50 text-purple-600',
+            iconBg: 'bg-purple-100'
         },
-        { 
-            label: 'Sekretaris Desa', 
-            value: statistics?.sekretaris_desa ?? '-', 
-            icon: Briefcase, 
-            color: 'bg-blue-50 text-blue-600', 
-            iconBg: 'bg-blue-100' 
+        {
+            label: 'Sekretaris Desa',
+            value: statistics?.sekretaris_desa ?? '-',
+            icon: Briefcase,
+            color: 'bg-blue-50 text-blue-600',
+            iconBg: 'bg-blue-100'
         },
-        { 
-            label: 'Pegawai Desa', 
-            value: statistics?.pegawai_desa ?? '-', 
-            icon: Briefcase, 
-            color: 'bg-yellow-50 text-yellow-600', 
-            iconBg: 'bg-yellow-100' 
+        {
+            label: 'Pegawai Desa',
+            value: statistics?.pegawai_desa ?? '-',
+            icon: Briefcase,
+            color: 'bg-yellow-50 text-yellow-600',
+            iconBg: 'bg-yellow-100'
         }
     ];
 
     return (
         <div className="flex h-screen bg-gray-50">
             <Head title="Manajemen Akun" />
-            
+
             {/* Sidebar */}
             <Sidebar />
 
@@ -119,10 +120,10 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
                             </select>
 
                             {/* Add User Button */}
-                            <button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+                            <Link href={route('users.create')} className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
                                 <Plus size={20} />
                                 Tambah Akun
-                            </button>
+                            </Link>
                         </div>
 
                         {/* Users Table */}
@@ -130,7 +131,7 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
                             <div className="p-4 border-b border-gray-200">
                                 <h2 className="text-lg font-semibold text-gray-900">Daftar Pengguna</h2>
                             </div>
-                            
+
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead className="bg-gray-50 border-b border-gray-200">
@@ -191,19 +192,31 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-2">
-                                                            <Link
-                                                                href={`/manajemen-akun/${user.id}/edit`}
-                                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                                title="Edit"
-                                                            >
-                                                                <Edit2 size={18} />
-                                                            </Link>
-                                                            <button 
-                                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                                title="Hapus"
-                                                            >
-                                                                <Trash2 size={18} />
-                                                            </button>
+                                                            {/* Show edit button only if:
+                                                                - User is Kepala Desa or Sekretaris Desa (can edit anyone)
+                                                                - OR User is Pegawai Desa editing their own profile
+                                                            */}
+                                                            {(auth.user.role === 'Kepala Desa' ||
+                                                              auth.user.role === 'Sekretaris Desa' ||
+                                                              (auth.user.role === 'Pegawai Desa' && auth.user.id === user.id)) && (
+                                                                <Link
+                                                                    href={`/manajemen-akun/${user.id}/edit`}
+                                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                    title="Edit"
+                                                                >
+                                                                    <Edit2 size={18} />
+                                                                </Link>
+                                                            )}
+                                                            {/* Delete button - same logic */}
+                                                            {(auth.user.role === 'Kepala Desa' ||
+                                                              auth.user.role === 'Sekretaris Desa') && (
+                                                                <button
+                                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                    title="Hapus"
+                                                                >
+                                                                    <Trash2 size={18} />
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
