@@ -5,16 +5,25 @@ import { Home, FolderOpen, Users, FileText, Settings, PenLine } from 'lucide-rea
 // Layout component that includes both Sidebar and Topbar
 // Layout component that includes both Sidebar and Topbar
 export default function Sidebar({ children }) {
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const user = props.auth?.user;
 
-    const menuItems = [
-        { id: 'dashboard', icon: Home, label: 'Dashboard', href: '/dashboard' },
-        { id: 'pembuatan-surat', icon: PenLine, label: 'Pembuatan Surat', href: '/surat/create' },
-        { id: 'dokumen', icon: FolderOpen, label: 'Dokumen', href: '/dokumen' },
-        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun' },
-        { id: 'laporan', icon: FileText, label: 'Laporan', href: '/laporan' },
-        { id: 'pengaturan', icon: Settings, label: 'Pengaturan', href: '/pengaturan' }
+    const allMenuItems = [
+        { id: 'dashboard', icon: Home, label: 'Dashboard', href: '/dashboard', roles: ['PEGAWAI', 'SEKDES', 'KADES'] },
+        { id: 'pembuatan-surat', icon: PenLine, label: 'Pembuatan Surat', href: '/surat/create', roles: ['PEGAWAI'] },
+        { id: 'pengelolaan-surat', icon: FolderOpen, label: 'Pengelolaan Surat', href: '/pengelolaan-surat', roles: ['PEGAWAI', 'SEKDES', 'KADES'] },
+        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['SEKDES', 'KADES'] },
+        { id: 'laporan', icon: FileText, label: 'Laporan', href: '/laporan', roles: ['SEKDES', 'KADES'] },
+        { id: 'pengaturan', icon: Settings, label: 'Pengaturan', href: '/pengaturan', roles: ['PEGAWAI', 'SEKDES', 'KADES'] }
     ];
+
+    // Filter menu items based on user role
+    const menuItems = allMenuItems.filter(item => {
+        if (!user) return false;
+        // Laravel sends relationship as snake_case: user_role
+        const userRole = (user.user_role?.name || '').toUpperCase();
+        return item.roles.includes(userRole);
+    });
 
     // Helper to check if item is active
     const isActive = (href) => {

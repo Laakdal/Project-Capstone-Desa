@@ -54,4 +54,44 @@ class User extends Authenticatable
             'permissions' => 'array',
         ];
     }
+
+    /**
+     * Get the user's role
+     */
+    public function userRole()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    /**
+     * Get all letters created by this user
+     */
+    public function letters()
+    {
+        return $this->hasMany(Letter::class, 'user_id');
+    }
+
+    /**
+     * Check if user is Sekdes
+     */
+    public function isSekdes(): bool
+    {
+        return strtoupper($this->role) === 'SEKDES' || strtoupper($this->jabatan) === 'SEKDES';
+    }
+
+    /**
+     * Check if user is Kades
+     */
+    public function isKades(): bool
+    {
+        return strtoupper($this->role) === 'KADES' || strtoupper($this->jabatan) === 'KADES';
+    }
+
+    /**
+     * Check if user is Pegawai
+     */
+    public function isPegawai(): bool
+    {
+        return strtoupper($this->role) === 'PEGAWAI' || strtoupper($this->jabatan) === 'PEGAWAI';
+    }
 }
