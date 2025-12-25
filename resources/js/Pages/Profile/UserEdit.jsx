@@ -1,8 +1,8 @@
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, Link, usePage } from '@inertiajs/react';
 import Sidebar, { Topbar } from '@/Components/Sidebar';
 
 export default function UserEdit({ user }) {
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, patch, processing, errors } = useForm({
         name: user.name || '',
         nik: user.nik || '',
         email: user.email || '',
@@ -36,7 +36,17 @@ export default function UserEdit({ user }) {
 
     const submit = (e) => {
         e.preventDefault();
-        put(route('users.update', user.id));
+        
+        // Check if we're on profile edit page or user edit page
+        // If URL contains '/profile', use profile.update route with PATCH method
+        // Otherwise use users.update route with PATCH method
+        const isProfileEdit = window.location.pathname === '/profile';
+        
+        if (isProfileEdit) {
+            patch(route('profile.update'));
+        } else {
+            patch(route('users.update', user.id));
+        }
     };
 
     return (

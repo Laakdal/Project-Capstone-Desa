@@ -1,10 +1,11 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import Topbar from '@/Components/Topbar';
 import { Search, Plus, Edit2, Trash2, Users, UserCheck, Crown, Briefcase } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ListUser({ users: initialUsers = [], statistics = {} }) {
+    const { auth } = usePage().props; // Get authenticated user
     const [searchQuery, setSearchQuery] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
 
@@ -191,19 +192,31 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-2">
-                                                            <Link
-                                                                href={`/manajemen-akun/${user.id}/edit`}
-                                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                                title="Edit"
-                                                            >
-                                                                <Edit2 size={18} />
-                                                            </Link>
-                                                            <button
-                                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                                title="Hapus"
-                                                            >
-                                                                <Trash2 size={18} />
-                                                            </button>
+                                                            {/* Show edit button only if:
+                                                                - User is Kepala Desa or Sekretaris Desa (can edit anyone)
+                                                                - OR User is Pegawai Desa editing their own profile
+                                                            */}
+                                                            {(auth.user.role === 'Kepala Desa' ||
+                                                              auth.user.role === 'Sekretaris Desa' ||
+                                                              (auth.user.role === 'Pegawai Desa' && auth.user.id === user.id)) && (
+                                                                <Link
+                                                                    href={`/manajemen-akun/${user.id}/edit`}
+                                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                    title="Edit"
+                                                                >
+                                                                    <Edit2 size={18} />
+                                                                </Link>
+                                                            )}
+                                                            {/* Delete button - same logic */}
+                                                            {(auth.user.role === 'Kepala Desa' ||
+                                                              auth.user.role === 'Sekretaris Desa') && (
+                                                                <button
+                                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                    title="Hapus"
+                                                                >
+                                                                    <Trash2 size={18} />
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>

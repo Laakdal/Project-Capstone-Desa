@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -124,6 +125,12 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         
+        // Authorization: Kepala Desa & Sekretaris Desa can edit anyone
+        // Pegawai Desa can only edit their own profile
+        if (Auth::user()->role === 'Pegawai Desa' && Auth::id() !== $user->id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit user lain.');
+        }
+        
         return Inertia::render('Profile/UserEdit', [
             'user' => $user
         ]);
@@ -135,6 +142,11 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        
+        // Authorization: Same as edit method
+        if (Auth::user()->role === 'Pegawai Desa' && Auth::id() !== $user->id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengupdate user lain.');
+        }
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',

@@ -5,16 +5,29 @@ import { Home, FolderOpen, Users, FileText, Settings, PenLine } from 'lucide-rea
 // Layout component that includes both Sidebar and Topbar
 // Layout component that includes both Sidebar and Topbar
 export default function Sidebar({ children }) {
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const { auth } = props;
+    const currentUserRole = auth?.user?.role;
 
     const menuItems = [
         { id: 'dashboard', icon: Home, label: 'Dashboard', href: '/dashboard' },
         { id: 'pembuatan-surat', icon: PenLine, label: 'Pembuatan Surat', href: '/surat/create' },
         { id: 'dokumen', icon: FolderOpen, label: 'Dokumen', href: '/dokumen' },
-        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun' },
+        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', 
+          // Hide for Pegawai Desa
+          hideFor: ['Pegawai Desa'] 
+        },
         { id: 'laporan', icon: FileText, label: 'Laporan', href: '/laporan' },
         { id: 'pengaturan', icon: Settings, label: 'Pengaturan', href: '/pengaturan' }
     ];
+
+    // Filter menu items based on user role
+    const visibleMenuItems = menuItems.filter(item => {
+        if (item.hideFor && item.hideFor.includes(currentUserRole)) {
+            return false;
+        }
+        return true;
+    });
 
     // Helper to check if item is active
     const isActive = (href) => {
@@ -48,7 +61,7 @@ export default function Sidebar({ children }) {
 
                 {/* Navigation Menu */}
                 <nav className="px-3 flex-1 overflow-y-auto">
-                    {menuItems.map((item) => {
+                    {visibleMenuItems.map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item.href);
 
