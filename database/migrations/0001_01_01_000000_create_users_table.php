@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('name');
             
             // Personal Information
-            $table->string('username')->unique()->nullable();
-            $table->string('nik')->nullable();
+            // $table->string('username')->unique()->nullable();
             $table->string('email')->unique();
+            $table->string('nik')->nullable();
             $table->string('phone')->nullable();
             
             // Role & Position

@@ -15,6 +15,11 @@ class UserController extends Controller
      */
     public function index()
     {
+        // Authorization: Only Kepala Desa and Sekretaris Desa can access
+        if (Auth::user()->role === 'Pegawai Desa') {
+            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        }
+        
         $users = User::orderBy('created_at', 'desc')->get()->map(function ($user) {
             return [
                 'id' => $user->id,
@@ -151,7 +156,6 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$id,
-            'username' => 'required|string|max:255|unique:users,username,'.$id,
             'phone' => 'nullable|string|max:20',
             'nik' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8',
@@ -165,7 +169,6 @@ class UserController extends Controller
         $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'username' => $validated['username'],
             'phone' => $validated['phone'],
             'nik' => $validated['nik'],
             'role' => $validated['role'],

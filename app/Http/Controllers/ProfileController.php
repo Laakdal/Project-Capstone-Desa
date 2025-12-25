@@ -37,25 +37,29 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'phone' => 'nullable|string|max:20',
             'nik' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8',
+            'role' => 'nullable|string',
             'jabatan' => 'nullable|string',
             'divisi' => 'nullable|string',
+            'status' => 'nullable|string',
             'permissions' => 'nullable|array',
         ]);
 
         $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'username' => $validated['username'],
             'phone' => $validated['phone'],
             'nik' => $validated['nik'],
-            'jabatan' => $validated['jabatan'] ?? null,
-            'divisi' => $validated['divisi'] ?? null,
-            'permissions' => $validated['permissions'] ?? [],
         ];
+        
+        // Update optional fields if provided
+        if (isset($validated['role'])) $userData['role'] = $validated['role'];
+        if (isset($validated['jabatan'])) $userData['jabatan'] = $validated['jabatan'];
+        if (isset($validated['divisi'])) $userData['divisi'] = $validated['divisi'];
+        if (isset($validated['status'])) $userData['status'] = $validated['status'];
+        if (isset($validated['permissions'])) $userData['permissions'] = $validated['permissions'];
 
         if (!empty($validated['password'])) {
             $userData['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
