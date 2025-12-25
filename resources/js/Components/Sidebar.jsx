@@ -9,19 +9,19 @@ export default function Sidebar({ children }) {
     const user = props.auth?.user;
 
     const allMenuItems = [
-        { id: 'dashboard', icon: Home, label: 'Dashboard', href: '/dashboard', roles: ['PEGAWAI', 'SEKDES', 'KADES'] },
-        { id: 'pembuatan-surat', icon: PenLine, label: 'Pembuatan Surat', href: '/surat/create', roles: ['PEGAWAI'] },
-        { id: 'pengelolaan-surat', icon: FolderOpen, label: 'Pengelolaan Surat', href: '/pengelolaan-surat', roles: ['PEGAWAI', 'SEKDES', 'KADES'] },
-        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['SEKDES', 'KADES'] },
-        { id: 'laporan', icon: FileText, label: 'Laporan', href: '/laporan', roles: ['SEKDES', 'KADES'] },
-        { id: 'pengaturan', icon: Settings, label: 'Pengaturan', href: '/pengaturan', roles: ['PEGAWAI', 'SEKDES', 'KADES'] }
+        { id: 'dashboard', icon: Home, label: 'Dashboard', href: '/dashboard', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] },
+        { id: 'pembuatan-surat', icon: PenLine, label: 'Pembuatan Surat', href: '/surat/create', roles: ['Pegawai Desa'] },
+        { id: 'pengelolaan-surat', icon: FolderOpen, label: 'Pengelolaan Surat', href: '/pengelolaan-surat', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] },
+        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['Sekretaris Desa', 'Kepala Desa'] },
+        { id: 'laporan', icon: FileText, label: 'Laporan', href: '/laporan', roles: ['Sekretaris Desa', 'Kepala Desa'] },
+        { id: 'pengaturan', icon: Settings, label: 'Pengaturan', href: '/pengaturan', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] }
     ];
 
     // Filter menu items based on user role
     const menuItems = allMenuItems.filter(item => {
         if (!user) return false;
-        // Laravel sends relationship as snake_case: user_role
-        const userRole = (user.user_role?.name || '').toUpperCase();
+        // Use role field directly from database (e.g., "Pegawai Desa", "Sekretaris Desa", "Kepala Desa")
+        const userRole = user.role || '';
         return item.roles.includes(userRole);
     });
 

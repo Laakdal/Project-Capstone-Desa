@@ -56,14 +56,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the user's role
-     */
-    public function userRole()
-    {
-        return $this->belongsTo(Role::class, 'role_id');
-    }
-
-    /**
      * Get all letters created by this user
      */
     public function letters()
