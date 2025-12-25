@@ -6,6 +6,7 @@ use App\Models\Letter;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class LetterController extends Controller
 {
@@ -19,14 +20,32 @@ class LetterController extends Controller
         $validated = $request->validate([
             'template_type' => 'required|string',
             'letter_number' => 'nullable|string',
+            'subject' => 'nullable|string|max:255',
+            'recipient' => 'nullable|string|max:255',
             'status' => 'required|in:draft,sent',
             'content' => 'nullable|string',
             'meta_data' => 'nullable|array',
         ]);
 
-        $request->user()->letters()->create($validated);
+        // Create letter
+        $letter = $request->user()->letters()->create($validated);
 
-        return redirect()->route('dashboard')->with('success', 'Surat berhasil disimpan.');
+        // Generate PDF if status is 'sent'
+        if ($validated['status'] === 'sent' && !empty($validated['content'])) {
+            $pdf = Pdf::loadView('letters.pdf', ['letterContent' => $validated['content']]);
+            
+            // Create filename
+            $filename = 'surat_' . $letter->id . '_' . time() . '.pdf';
+            
+            // Save PDF to storage/app/public/letters
+            $path = 'letters/' . $filename;
+            Storage::disk('public')->put($path, $pdf->output());
+            
+            // Update letter with PDF path
+            $letter->update(['pdf_path' => $path]);
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Surat berhasil dikirim!');
     }
 
     public function preview(Letter $letter)

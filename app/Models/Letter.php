@@ -11,23 +11,34 @@ class Letter extends Model
      * Status constants
      */
     const STATUS_DRAFT = 'draft';
-    const STATUS_PENDING_VERIFICATION = 'pending_verification';
-    const STATUS_VERIFIED = 'verified';
-    const STATUS_PENDING_APPROVAL = 'pending_approval';
-    const STATUS_APPROVED = 'approved';
-    const STATUS_REJECTED = 'rejected';
+    const STATUS_SENT = 'sent'; // Surat dikirim oleh Pegawai
+    const STATUS_REVOKED = 'revoked'; // Dikembalikan oleh Sekretaris ke Pegawai
+    const STATUS_CONTINUED = 'continued'; // Diteruskan oleh Sekretaris ke Kepala Desa
+    const STATUS_REJECTED = 'rejected'; // Ditolak oleh Kepala Desa
+    const STATUS_APPROVED = 'approved'; // Disetujui oleh Kepala Desa
 
     protected $fillable = [
         'user_id',
         'template_type',
         'letter_number',
+        'subject',
+        'recipient',
         'status',
         'content',
         'meta_data',
+        'pdf_path',
+        'secretary_notes',
+        'head_notes',
+        'verified_by',
+        'approved_by',
+        'verified_at',
+        'approved_at',
     ];
 
     protected $casts = [
         'meta_data' => 'array',
+        'verified_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -51,18 +62,18 @@ class Letter extends Model
     }
 
     /**
-     * Scope for pending verification letters
+     * Scope for sent letters (waiting for secretary review)
      */
-    public function scopePendingVerification($query)
+    public function scopeSent($query)
     {
-        return $query->where('status', self::STATUS_PENDING_VERIFICATION);
+        return $query->where('status', self::STATUS_SENT);
     }
 
     /**
-     * Scope for pending approval letters
+     * Scope for continued letters (waiting for head approval)
      */
-    public function scopePendingApproval($query)
+    public function scopeContinued($query)
     {
-        return $query->where('status', self::STATUS_PENDING_APPROVAL);
+        return $query->where('status', self::STATUS_CONTINUED);
     }
 }

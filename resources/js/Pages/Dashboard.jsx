@@ -1,11 +1,23 @@
-import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import Sidebar from '@/Components/Sidebar';
 import Topbar from '@/Components/Topbar';
+import { toast } from 'react-toastify';
 
 export default function Dashboard() {
     const [activeTab, setActiveTab] = useState('arsip');
     const [viewMode, setViewMode] = useState('grid');
+    const { flash } = usePage().props;
+
+    // Show toast notification if there's a flash message
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     const pinnedDocs = [
         {
@@ -69,7 +81,7 @@ export default function Dashboard() {
     return (
         <>
             <Head title="SiArsip Desa" />
-            
+
             <div className="flex h-screen bg-gray-50">
                 {/* Sidebar */}
                 <Sidebar />
@@ -86,21 +98,19 @@ export default function Dashboard() {
                             <div className="flex gap-6">
                                 <button
                                     onClick={() => setActiveTab('arsip')}
-                                    className={`pb-3 border-b-2 ${
-                                        activeTab === 'arsip'
+                                    className={`pb-3 border-b-2 ${activeTab === 'arsip'
                                             ? 'border-blue-500 text-blue-600'
                                             : 'border-transparent text-gray-600'
-                                    }`}
+                                        }`}
                                 >
                                     Arsip Dokumen
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('perlu')}
-                                    className={`pb-3 border-b-2 ${
-                                        activeTab === 'perlu'
+                                    className={`pb-3 border-b-2 ${activeTab === 'perlu'
                                             ? 'border-blue-500 text-blue-600'
                                             : 'border-transparent text-gray-600'
-                                    }`}
+                                        }`}
                                 >
                                     Perlu Persetujuan 🔴
                                 </button>
@@ -242,13 +252,12 @@ export default function Dashboard() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span
-                                                        className={`px-3 py-1 text-xs rounded-full ${
-                                                            doc.statusColor === 'green'
+                                                        className={`px-3 py-1 text-xs rounded-full ${doc.statusColor === 'green'
                                                                 ? 'bg-green-100 text-green-700'
                                                                 : doc.statusColor === 'yellow'
-                                                                ? 'bg-yellow-100 text-yellow-700'
-                                                                : 'bg-red-100 text-red-700'
-                                                        }`}
+                                                                    ? 'bg-yellow-100 text-yellow-700'
+                                                                    : 'bg-red-100 text-red-700'
+                                                            }`}
                                                     >
                                                         ● {doc.status}
                                                     </span>

@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { Home, FolderOpen, Users, FileText, Settings, PenLine } from 'lucide-react';
+import { Home, FolderOpen, Users, FileText, Settings, PenLine, CheckCircle } from 'lucide-react';
 
 // Layout component that includes both Sidebar and Topbar
 // Layout component that includes both Sidebar and Topbar
@@ -11,6 +11,8 @@ export default function Sidebar({ children }) {
     const allMenuItems = [
         { id: 'dashboard', icon: Home, label: 'Dashboard', href: '/dashboard', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] },
         { id: 'pembuatan-surat', icon: PenLine, label: 'Pembuatan Surat', href: '/surat/create', roles: ['Pegawai Desa'] },
+        { id: 'review-surat', icon: CheckCircle, label: 'Review Surat', href: '/review-surat', roles: ['Sekretaris Desa'] },
+        { id: 'approval-surat', icon: CheckCircle, label: 'Approval Surat', href: '/approval-surat', roles: ['Kepala Desa'] },
         { id: 'pengelolaan-surat', icon: FolderOpen, label: 'Pengelolaan Surat', href: '/pengelolaan-surat', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] },
         { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['Sekretaris Desa', 'Kepala Desa'] },
         { id: 'laporan', icon: FileText, label: 'Laporan', href: '/laporan', roles: ['Sekretaris Desa', 'Kepala Desa'] },
@@ -20,7 +22,7 @@ export default function Sidebar({ children }) {
     // Filter menu items based on user role
     const menuItems = allMenuItems.filter(item => {
         if (!user) return false;
-        // Use role field directly from database (e.g., "Pegawai Desa", "Sekretaris Desa", "Kepala Desa")
+        // Use role column directly from users table
         const userRole = user.role || '';
         return item.roles.includes(userRole);
     });

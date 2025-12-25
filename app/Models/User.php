@@ -68,7 +68,10 @@ class User extends Authenticatable
      */
     public function isSekdes(): bool
     {
-        return strtoupper($this->role) === 'SEKDES' || strtoupper($this->jabatan) === 'SEKDES';
+        $role = strtoupper($this->role ?? '');
+        $jabatan = strtoupper($this->jabatan ?? '');
+        return $role === 'SEKDES' || $jabatan === 'SEKDES' || 
+               $this->role === 'Sekretaris Desa' || $this->jabatan === 'Sekretaris Desa';
     }
 
     /**
@@ -76,7 +79,10 @@ class User extends Authenticatable
      */
     public function isKades(): bool
     {
-        return strtoupper($this->role) === 'KADES' || strtoupper($this->jabatan) === 'KADES';
+        $role = strtoupper($this->role ?? '');
+        $jabatan = strtoupper($this->jabatan ?? '');
+        return $role === 'KADES' || $jabatan === 'KADES' || 
+               $this->role === 'Kepala Desa' || $this->jabatan === 'Kepala Desa';
     }
 
     /**
@@ -84,6 +90,9 @@ class User extends Authenticatable
      */
     public function isPegawai(): bool
     {
-        return strtoupper($this->role) === 'PEGAWAI' || strtoupper($this->jabatan) === 'PEGAWAI';
+        $role = strtoupper($this->role ?? '');
+        $jabatan = strtoupper($this->jabatan ?? '');
+        return $role === 'PEGAWAI' || $jabatan === 'PEGAWAI' || 
+               $this->role === 'Pegawai Desa' || $this->jabatan === 'Pegawai Desa';
     }
 }
