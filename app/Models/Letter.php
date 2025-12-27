@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Letter extends Model
 {
     /**
+     * The table associated with the model.
+     */
+    protected $table = 'letters';
+    
+    /**
      * Status constants
      */
     const STATUS_DRAFT = 'draft';

@@ -1,50 +1,4 @@
-﻿import { Head, useForm, usePage } from '@inertiajs/react';
-import RichTextEditor from '@/Components/RichTextEditor';
-import Sidebar, { Topbar } from '@/Components/Sidebar';
-import { generateLetterTemplate } from '@/utils/letterTemplates';
-import { useEffect } from 'react';
-
-export default function Create() {
-    const { data, setData, post, processing, errors } = useForm({
-        template_type: '',
-        letter_number: '',
-        subject: '', // Perihal
-        recipient: '', // Penerima
-        status: 'draft',
-        content: '',
-        meta_data: {
-            perihal: '',
-            tujuan: '',
-            lampiran: '',
-            nama_lengkap: '',
-            nik: '',
-            tempat_lahir: '',
-            tanggal_lahir: '',
-            jenis_kelamin: '',
-            agama: '',
-            pekerjaan: '',
-            alamat_lengkap: '',
-            jabatan: '',
-        },
-    });
-
-    const templates = [
-        { id: 'surat_pengunduran_diri', name: 'Surat Pengunduran Diri' },
-        { id: 'surat_keputusan', name: 'Surat Keputusan (SK)' },
-        { id: 'surat_perintah_perjalanan_dinas', name: 'Surat Perintah Perjalanan Dinas (SPPD)' },
-        { id: 'surat_tugas', name: 'Surat Tugas (ST)' },
-        { id: 'surat_cuti', name: 'Surat Cuti' },
-        { id: 'memo', name: 'Memo' },
-    ];
-
-
-    const generateTemplateContent = (type) => {
-        // Get current user data from Inertia page props
-        const user = usePage().props.auth.user;
-        
-        // Use the helper function from letterTemplates.js
-        return generateLetterTemplate(type, user);
-    };
+﻿
     const handleTemplateChange = (e) => {
         const type = e.target.value;
         setData(prev => ({
@@ -211,4 +165,3 @@ export default function Create() {
         </div>
     );
 }
-

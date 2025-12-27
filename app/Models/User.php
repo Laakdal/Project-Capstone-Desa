@@ -27,6 +27,7 @@ class User extends Authenticatable
         'jabatan',
         'divisi',
         'role',
+        'address',
         'status',
         'permissions',
     ];

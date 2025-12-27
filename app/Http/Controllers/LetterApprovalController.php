@@ -45,6 +45,7 @@ class LetterApprovalController extends Controller
             // Teruskan ke Kepala Desa
             $letter->update([
                 'status' => Letter::STATUS_CONTINUED,
+                'recipient' => 'Kepala Desa', // Change recipient to Kepala Desa
                 'secretary_notes' => $validated['notes'] ?? null,
                 'verified_by' => $user->id,
                 'verified_at' => now(),
