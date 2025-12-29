@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Letter extends Model
 {
@@ -67,6 +68,27 @@ class Letter extends Model
     }
 
     /**
+     * Get all folders this letter belongs to
+     */
+    public function folders(): BelongsToMany
+    {
+        return $this->belongsToMany(Folder::class, 'letter_folder')
+            ->withTimestamps();
+    }
+
+    /**
+     * Query Scopes for Letter Status
+     */
+    
+    /**
+     * Scope for draft letters
+     */
+    public function scopeDraft($query)
+    {
+        return $query->where('status', self::STATUS_DRAFT);
+    }
+
+    /**
      * Scope for sent letters (waiting for secretary review)
      */
     public function scopeSent($query)
@@ -80,5 +102,29 @@ class Letter extends Model
     public function scopeContinued($query)
     {
         return $query->where('status', self::STATUS_CONTINUED);
+    }
+
+    /**
+     * Scope for approved letters
+     */
+    public function scopeApproved($query)
+    {
+        return $query->where('status', self::STATUS_APPROVED);
+    }
+
+    /**
+     * Scope for rejected letters
+     */
+    public function scopeRejected($query)
+    {
+        return $query->where('status', self::STATUS_REJECTED);
+    }
+
+    /**
+     * Scope for revoked letters
+     */
+    public function scopeRevoked($query)
+    {
+        return $query->where('status', self::STATUS_REVOKED);
     }
 }

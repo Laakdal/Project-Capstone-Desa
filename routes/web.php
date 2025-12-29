@@ -37,6 +37,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/pengelolaan-surat/{letter}/pdf', [\App\Http\Controllers\LetterManagementController::class, 'showPdf'])->name('letter-management.show-pdf');
     Route::get('/pengelolaan-surat/{letter}/download', [\App\Http\Controllers\LetterManagementController::class, 'downloadPdf'])->name('letter-management.download-pdf');
     
+    // Arsip routes (alias for Sekdes)
+    Route::get('/arsip', [\App\Http\Controllers\LetterManagementController::class, 'index'])->name('arsip.index');
+    Route::get('/arsip/{letter}/pdf', [\App\Http\Controllers\LetterManagementController::class, 'showPdf'])->name('arsip.show-pdf');
+    Route::get('/arsip/{letter}/download', [\App\Http\Controllers\LetterManagementController::class, 'downloadPdf'])->name('arsip.download-pdf');
+    
+    // Folder Management Routes (Sekdes only)
+    Route::get('/folders', [\App\Http\Controllers\FolderController::class, 'index'])->name('folders.index');
+    Route::post('/folders', [\App\Http\Controllers\FolderController::class, 'store'])->name('folders.store');
+    Route::put('/folders/{folder}', [\App\Http\Controllers\FolderController::class, 'update'])->name('folders.update');
+    Route::delete('/folders/{folder}', [\App\Http\Controllers\FolderController::class, 'destroy'])->name('folders.destroy');
+    Route::post('/folders/{folder}/add-letter', [\App\Http\Controllers\FolderController::class, 'addLetter'])->name('folders.add-letter');
+    Route::post('/folders/{folder}/remove-letter', [\App\Http\Controllers\FolderController::class, 'removeLetter'])->name('folders.remove-letter');
+    
     // Approval Workflow Routes
     // Secretary Review
     Route::get('/review-surat', [\App\Http\Controllers\LetterApprovalController::class, 'secretaryIndex'])->name('secretary.review.index');

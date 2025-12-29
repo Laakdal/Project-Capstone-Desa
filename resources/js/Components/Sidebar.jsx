@@ -10,11 +10,17 @@ export default function Sidebar({ children }) {
 
     const allMenuItems = [
         { id: 'dashboard', icon: Home, label: 'Dashboard', href: '/dashboard', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] },
-        { id: 'pembuatan-surat', icon: PenLine, label: 'Pembuatan Surat', href: '/surat/create', roles: ['Pegawai Desa'] },
+        { id: 'pembuatan-surat', icon: PenLine, label: 'Pembuatan Surat', href: '/surat/create', roles: ['Pegawai Desa', 'Sekretaris Desa'] },
         { id: 'review-surat', icon: CheckCircle, label: 'Review Surat', href: '/review-surat', roles: ['Sekretaris Desa'] },
         { id: 'approval-surat', icon: CheckCircle, label: 'Approval Surat', href: '/approval-surat', roles: ['Kepala Desa'] },
-        { id: 'pengelolaan-surat', icon: FolderOpen, label: 'Pengelolaan Surat', href: '/pengelolaan-surat', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] },
-        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['Sekretaris Desa', 'Kepala Desa'] },
+        {
+            id: 'pengelolaan-surat',
+            icon: FolderOpen,
+            label: (user?.role === 'Sekretaris Desa' || user?.role === 'Kepala Desa') ? 'Arsip' : 'Pengelolaan Surat',
+            href: (user?.role === 'Sekretaris Desa' || user?.role === 'Kepala Desa') ? '/arsip' : '/pengelolaan-surat',
+            roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa']
+        },
+        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['Sekretaris Desa'] },
         { id: 'laporan', icon: FileText, label: 'Laporan', href: '/laporan', roles: ['Sekretaris Desa', 'Kepala Desa'] },
         { id: 'pengaturan', icon: Settings, label: 'Pengaturan', href: '/pengaturan', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] }
     ];
@@ -49,13 +55,7 @@ export default function Sidebar({ children }) {
                     </div>
                 </div>
 
-                {/* Create Folder Button */}
-                <div className="p-4">
-                    <button className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors">
-                        <span>+</span>
-                        <span>Buat Folder Baru</span>
-                    </button>
-                </div>
+
 
                 {/* Navigation Menu */}
                 <nav className="px-3 flex-1 overflow-y-auto">

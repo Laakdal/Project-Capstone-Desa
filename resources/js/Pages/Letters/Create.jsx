@@ -5,6 +5,8 @@ import { generateLetterTemplate } from '@/utils/letterTemplates';
 import { useEffect } from 'react';
 
 export default function Create() {
+    const { auth } = usePage().props;
+    const user = auth.user;
     const { data, setData, post, processing, errors } = useForm({
         template_type: '',
         letter_number: '',
@@ -28,20 +30,33 @@ export default function Create() {
         },
     });
 
-    const templates = [
-        { id: 'surat_pengunduran_diri', name: 'Surat Pengunduran Diri' },
-        { id: 'surat_keputusan', name: 'Surat Keputusan (SK)' },
-        { id: 'surat_perintah_perjalanan_dinas', name: 'Surat Perintah Perjalanan Dinas (SPPD)' },
-        { id: 'surat_tugas', name: 'Surat Tugas (ST)' },
-        { id: 'surat_cuti', name: 'Surat Cuti' },
-        { id: 'memo', name: 'Memo' },
+    // Define all templates with role restrictions
+    const allTemplates = [
+        { id: 'surat_pengunduran_diri', name: 'Surat Pengunduran Diri', roles: ['Pegawai Desa'] },
+        { id: 'surat_cuti', name: 'Surat Cuti', roles: ['Pegawai Desa'] },
+        { id: 'memo', name: 'Memo', roles: ['Pegawai Desa'] },
+        { id: 'surat_keputusan', name: 'Surat Keputusan (SK)', roles: ['Sekretaris Desa'] },
+        { id: 'surat_perintah_perjalanan_dinas', name: 'Surat Perintah Perjalanan Dinas (SPPD)', roles: ['Sekretaris Desa'] },
+        { id: 'surat_tugas', name: 'Surat Tugas (ST)', roles: ['Sekretaris Desa'] },
     ];
+
+    // Filter templates based on user role
+    const templates = allTemplates.filter(template =>
+        template.roles.includes(user.role)
+    );
+
+    // Redirect Kepala Desa if they try to access this page
+    useEffect(() => {
+        if (user.role === 'Kepala Desa') {
+            window.location.href = '/dashboard';
+        }
+    }, [user.role]);
 
 
     const generateTemplateContent = (type) => {
         // Get current user data from Inertia page props
         const user = usePage().props.auth.user;
-        
+
         // Use the helper function from letterTemplates.js
         return generateLetterTemplate(type, user);
     };

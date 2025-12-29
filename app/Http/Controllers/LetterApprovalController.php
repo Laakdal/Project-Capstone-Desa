@@ -112,8 +112,12 @@ class LetterApprovalController extends Controller
             abort(403, 'Akses ditolak.');
         }
         
+        
+        // Get letters that need review by Sekdes
+        // Exclude letters created by Sekdes (they go directly to Kades)
         $letters = Letter::with(['user'])
             ->sent()
+            ->where('user_id', '!=', $user->id) // Exclude own letters
             ->latest()
             ->paginate(20);
         

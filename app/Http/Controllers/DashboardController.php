@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Letter;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -10,7 +11,7 @@ use Inertia\Inertia;
 class DashboardController extends Controller
 {
     /**
-     * Display the dashboard with real statistics
+     * Display the dashboard with role-specific statistics
      */
     public function index(Request $request)
     {
@@ -56,17 +57,66 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Pending actions for current user based on role
+        // Role-specific data
         $pendingActions = [];
+        $pendingLetters = [];
         
-        // Sekretaris can see letters that are 'sent' (waiting for review)
-        if ($user->isSekdes()) {
-            $pendingActions['pending_review'] = Letter::sent()->count();
+        if ($user->isPegawai()) {
+            // PBI#6: Pegawai Dashboard
+            $pendingActions = [
+                'drafts' => Letter::where('user_id', $user->id)->draft()->count(),
+                'waiting_approval' => Letter::where('user_id', $user->id)
+                    ->whereIn('status', [Letter::STATUS_SENT, Letter::STATUS_CONTINUED])
+                    ->count(),
+                'dispositions' => 0, // TODO: Implement dispositions
+            ];
+            
+            // Get recent letters for Pegawai
+            $pendingLetters = Letter::where('user_id', $user->id)
+                ->whereIn('status', [Letter::STATUS_DRAFT, Letter::STATUS_SENT, Letter::STATUS_CONTINUED])
+                ->with(['user'])
+                ->latest()
+                ->limit(5)
+                ->get();
         }
         
-        // Kepala Desa can see letters that are 'continued' (waiting for approval)
+        if ($user->isSekdes()) {
+            // PBI#8: Sekdes Dashboard
+            $pendingActions = [
+                'pending_review' => Letter::sent()->count(),
+                'total_this_month' => Letter::whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->count(),
+                'active_users' => User::where('status', 'Aktif')->count(),
+            ];
+            
+            // Get letters waiting for Sekdes review
+            $pendingLetters = Letter::with(['user'])
+                ->sent()
+                ->latest()
+                ->limit(5)
+                ->get();
+        }
+        
         if ($user->isKades()) {
-            $pendingActions['pending_approval'] = Letter::continued()->count();
+            // PBI#7: Kades Dashboard
+            $pendingActions = [
+                'pending_approval' => Letter::continued()->count(),
+                'approved_this_month' => Letter::where('status', Letter::STATUS_APPROVED)
+                    ->whereMonth('updated_at', now()->month)
+                    ->whereYear('updated_at', now()->year)
+                    ->count(),
+                'total_this_month' => Letter::whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)
+                    ->count(),
+            ];
+            
+            // Get letters waiting for Kades approval
+            $pendingLetters = Letter::with(['user'])
+                ->continued()
+                ->latest()
+                ->limit(5)
+                ->get();
         }
 
         return Inertia::render('Dashboard', [
@@ -74,6 +124,8 @@ class DashboardController extends Controller
             'myStatistics' => $myStatistics,
             'recentLetters' => $recentLetters,
             'pendingActions' => $pendingActions,
+            'pendingLetters' => $pendingLetters,
+            'userRole' => $user->role,
         ]);
     }
 }

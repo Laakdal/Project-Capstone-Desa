@@ -24,17 +24,7 @@ class LetterController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'template_type' => 'required|string',
-            'letter_number' => 'nullable|string',
-            'subject' => 'required|string|max:255',
-            'status' => 'required|in:draft,sent',
-            'content' => 'nullable|string',
-            'meta_data' => 'nullable|array',
-        ]);
-
-        // Define allowed templates per role
+    {`r`n        $validated = $request->validate([`r`n            'template_type' => 'required|string',`r`n            'letter_number' => 'nullable|string',`r`n            'subject' => 'required|string|max:255',`r`n            'status' => 'required|in:draft,sent',`r`n            'content' => 'nullable|string',`r`n            'meta_data' => 'nullable|array',`r`n        ]);`r`n`r`n        // Define allowed templates per role
         $allowedTemplates = [
             'Pegawai Desa' => ['surat_pengunduran_diri', 'surat_cuti', 'memo'],
             'Sekretaris Desa' => ['surat_keputusan', 'surat_perintah_perjalanan_dinas', 'surat_tugas'],
@@ -42,7 +32,7 @@ class LetterController extends Controller
         
         $user = $request->user();
         
-        // Validate template access based on role
+        // Validate template access
         if (!isset($allowedTemplates[$user->role]) || 
             !in_array($validated['template_type'], $allowedTemplates[$user->role])) {
             return back()->withErrors([
@@ -51,17 +41,8 @@ class LetterController extends Controller
         }
 
         // Auto-set recipient based on workflow
-        // Pegawai → Sekretaris Desa
-        // Sekretaris Desa → Kepala Desa
-        if ($user->role === 'Pegawai Desa') {
-            $validated['recipient'] = 'Sekretaris Desa';
-        } elseif ($user->role === 'Sekretaris Desa') {
-            $validated['recipient'] = 'Kepala Desa';
-            // Sekdes letters go directly to Kades (skip review)
-            if ($validated['status'] === 'sent') {
-                $validated['status'] = Letter::STATUS_CONTINUED; // 'continued'
-            }
-        }
+        // When Pegawai creates letter, recipient is always Sekretaris Desa
+        $validated['recipient'] = 'Sekretaris Desa';
         
         // Auto-populate sender info from user account
         $user = $request->user();
@@ -79,8 +60,8 @@ class LetterController extends Controller
         // Create letter
         $letter = $request->user()->letters()->create($validated);
 
-        // Generate PDF if status is 'sent' or 'continued'
-        if (in_array($validated['status'], ['sent', Letter::STATUS_CONTINUED]) && !empty($validated['content'])) {
+        // Generate PDF if status is 'sent'
+        if ($validated['status'] === 'sent' && !empty($validated['content'])) {
             $pdf = Pdf::loadView('letters.pdf', ['letterContent' => $validated['content']]);
             
             // Create filename
@@ -251,3 +232,4 @@ class LetterController extends Controller
         return sprintf('%s/%03d/%s', $prefix, $nextNumber, $year);
     }
 }
+
