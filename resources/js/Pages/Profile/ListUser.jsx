@@ -112,11 +112,30 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
                 {/* Page Content */}
                 <main className="flex-1 overflow-y-auto">
                     <div className="p-6">
+                        
+                        {/* Statistics Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+                            {stats.map((stat, index) => {
+                                const Icon = stat.icon;
+                                return (
+                                    <div key={index} className={`${stat.color} rounded-lg p-6 border border-gray-200`}>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className={`w-12 h-12 ${stat.iconBg} rounded-lg flex items-center justify-center`}>
+                                                <Icon size={24} className={stat.color.split(' ')[1]} />
+                                            </div>
+                                        </div>
+                                        <div className="text-sm font-medium text-gray-600 mb-1">{stat.label}</div>
+                                        <div className="text-3xl font-bold">{stat.value}</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        
                         {/* Page Header */}
-                        <div className="mb-6">
+                        {/* <div className="mb-6">
                             <h1 className="text-2xl font-bold text-gray-900 mb-1">Manajemen Akun</h1>
                             <p className="text-sm text-gray-600">Kelola akun pengguna sistem arsip digital</p>
-                        </div>
+                        </div> */}
 
                         {/* Search and Filter Bar */}
                         <div className="flex items-center gap-4 mb-6">
@@ -217,20 +236,31 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-2">
-                                                            <Link
-                                                                href={`/manajemen-akun/${user.id}/edit`}
-                                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                                title="Edit"
-                                                            >
-                                                                <Edit2 size={18} />
-                                                            </Link>
-                                                            <button
-                                                                onClick={() => handleDeleteUser(user)}
-                                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                                title="Hapus"
-                                                            >
-                                                                <Trash2 size={18} />
-                                                            </button>
+                                                            {/* Show edit button only if:
+                                                                - User is Kepala Desa or Sekretaris Desa (can edit anyone)
+                                                                - OR User is Pegawai Desa editing their own profile
+                                                            */}
+                                                            {(auth.user.role === 'Kepala Desa' ||
+                                                              auth.user.role === 'Sekretaris Desa' ||
+                                                              (auth.user.role === 'Pegawai Desa' && auth.user.id === user.id)) && (
+                                                                <Link
+                                                                    href={`/manajemen-akun/${user.id}/edit`}
+                                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                    title="Edit"
+                                                                >
+                                                                    <Edit2 size={18} />
+                                                                </Link>
+                                                            )}
+                                                            {/* Delete button - same logic */}
+                                                            {(auth.user.role === 'Kepala Desa' ||
+                                                              auth.user.role === 'Sekretaris Desa') && (
+                                                                <button
+                                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                    title="Hapus"
+                                                                >
+                                                                    <Trash2 size={18} />
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -247,23 +277,7 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
                             </div>
                         </div>
 
-                        {/* Statistics Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                            {stats.map((stat, index) => {
-                                const Icon = stat.icon;
-                                return (
-                                    <div key={index} className={`${stat.color} rounded-lg p-6 border border-gray-200`}>
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className={`w-12 h-12 ${stat.iconBg} rounded-lg flex items-center justify-center`}>
-                                                <Icon size={24} className={stat.color.split(' ')[1]} />
-                                            </div>
-                                        </div>
-                                        <div className="text-sm font-medium text-gray-600 mb-1">{stat.label}</div>
-                                        <div className="text-3xl font-bold">{stat.value}</div>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                        
                     </div>
                 </main>
             </div>

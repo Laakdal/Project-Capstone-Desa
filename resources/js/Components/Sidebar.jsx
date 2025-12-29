@@ -59,7 +59,7 @@ export default function Sidebar({ children }) {
 
                 {/* Navigation Menu */}
                 <nav className="px-3 flex-1 overflow-y-auto">
-                    {menuItems.map((item) => {
+                    {visibleMenuItems.map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item.href);
 
