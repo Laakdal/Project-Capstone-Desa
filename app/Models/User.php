@@ -54,4 +54,12 @@ class User extends Authenticatable
             'permissions' => 'array',
         ];
     }
+
+    /**
+     * Get the letters for the user.
+     */
+    public function letters()
+    {
+        return $this->hasMany(Letter::class);
+    }
 }
