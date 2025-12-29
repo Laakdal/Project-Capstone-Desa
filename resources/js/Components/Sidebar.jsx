@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Home, FolderOpen, Users, FileText, Settings, PenLine, CheckCircle } from 'lucide-react';
 
 // Layout component that includes both Sidebar and Topbar
-// Layout component that includes both Sidebar and Topbar
 export default function Sidebar({ children }) {
     const { url, props } = usePage();
     const user = props.auth?.user;
@@ -18,9 +17,9 @@ export default function Sidebar({ children }) {
             icon: FolderOpen,
             label: (user?.role === 'Sekretaris Desa' || user?.role === 'Kepala Desa') ? 'Arsip' : 'Pengelolaan Surat',
             href: (user?.role === 'Sekretaris Desa' || user?.role === 'Kepala Desa') ? '/arsip' : '/pengelolaan-surat',
-            roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa']
+            roles: ['Sekretaris Desa', 'Kepala Desa']
         },
-        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['Sekretaris Desa'] },
+        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['Sekretaris Desa', 'Kepala Desa'] },
         { id: 'laporan', icon: FileText, label: 'Laporan', href: '/laporan', roles: ['Sekretaris Desa', 'Kepala Desa'] },
         { id: 'pengaturan', icon: Settings, label: 'Pengaturan', href: '/pengaturan', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] }
     ];
@@ -59,7 +58,7 @@ export default function Sidebar({ children }) {
 
                 {/* Navigation Menu */}
                 <nav className="px-3 flex-1 overflow-y-auto">
-                    {visibleMenuItems.map((item) => {
+                    {menuItems.map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item.href);
 
@@ -83,8 +82,6 @@ export default function Sidebar({ children }) {
     );
 }
 
-
-// Topbar component for use with Sidebar
 // Topbar component for use with Sidebar
 export function Topbar({ pageTitle = 'Dashboard' }) {
     const { props } = usePage();

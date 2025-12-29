@@ -16,6 +16,11 @@ class LetterManagementController extends Controller
     {
         $user = $request->user();
         
+        // STRICT AUTHORIZATION: Only Sekretaris Desa and Kepala Desa can access archive
+        if (!in_array($user->role, ['Sekretaris Desa', 'Kepala Desa'])) {
+            abort(403);
+        }
+        
         // Base query with relationships
         $query = Letter::with(['user', 'folders']);
         
@@ -134,6 +139,11 @@ class LetterManagementController extends Controller
     {
         $user = auth()->user();
         
+        // STRICT AUTHORIZATION: Only Sekretaris Desa and Kepala Desa
+        if (!in_array($user->role, ['Sekretaris Desa', 'Kepala Desa'])) {
+            abort(403, 'Anda tidak memiliki akses. Hanya Sekretaris Desa dan Kepala Desa yang dapat melihat PDF arsip.');
+        }
+        
         // Check permission
         if ($user->isPegawai() && $letter->user_id !== $user->id) {
             abort(403, 'Anda tidak memiliki akses ke surat ini.');
@@ -153,6 +163,11 @@ class LetterManagementController extends Controller
     public function downloadPdf(Letter $letter)
     {
         $user = auth()->user();
+        
+        // STRICT AUTHORIZATION: Only Sekretaris Desa and Kepala Desa
+        if (!in_array($user->role, ['Sekretaris Desa', 'Kepala Desa'])) {
+            abort(403, 'Anda tidak memiliki akses. Hanya Sekretaris Desa dan Kepala Desa yang dapat mendownload PDF arsip.');
+        }
         
         // Check permission
         if ($user->isPegawai() && $letter->user_id !== $user->id) {

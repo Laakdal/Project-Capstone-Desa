@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 export default function ListUser({ users: initialUsers = [], statistics = {} }) {
-    const { flash } = usePage().props;
+    const { flash, auth } = usePage().props;
     const [searchQuery, setSearchQuery] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
 
