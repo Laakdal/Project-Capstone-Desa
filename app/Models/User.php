@@ -27,6 +27,7 @@ class User extends Authenticatable
         'jabatan',
         'divisi',
         'role',
+        'address',
         'status',
         'permissions',
     ];
@@ -56,10 +57,43 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the letters for the user.
+     * Get all letters created by this user
      */
     public function letters()
     {
-        return $this->hasMany(Letter::class);
+        return $this->hasMany(Letter::class, 'user_id');
+    }
+
+    /**
+     * Check if user is Sekdes
+     */
+    public function isSekdes(): bool
+    {
+        $role = strtoupper($this->role ?? '');
+        $jabatan = strtoupper($this->jabatan ?? '');
+        return $role === 'SEKDES' || $jabatan === 'SEKDES' || 
+               $this->role === 'Sekretaris Desa' || $this->jabatan === 'Sekretaris Desa';
+    }
+
+    /**
+     * Check if user is Kades
+     */
+    public function isKades(): bool
+    {
+        $role = strtoupper($this->role ?? '');
+        $jabatan = strtoupper($this->jabatan ?? '');
+        return $role === 'KADES' || $jabatan === 'KADES' || 
+               $this->role === 'Kepala Desa' || $this->jabatan === 'Kepala Desa';
+    }
+
+    /**
+     * Check if user is Pegawai
+     */
+    public function isPegawai(): bool
+    {
+        $role = strtoupper($this->role ?? '');
+        $jabatan = strtoupper($this->jabatan ?? '');
+        return $role === 'PEGAWAI' || $jabatan === 'PEGAWAI' || 
+               $this->role === 'Pegawai Desa' || $this->jabatan === 'Pegawai Desa';
     }
 }

@@ -1,13 +1,24 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import Topbar from '@/Components/Topbar';
 import { Search, Plus, Edit2, Trash2, Users, UserCheck, Crown, Briefcase } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 export default function ListUser({ users: initialUsers = [], statistics = {} }) {
-    const { auth } = usePage().props; // Get authenticated user
+    const { flash } = usePage().props;
     const [searchQuery, setSearchQuery] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
+
+    // Show flash messages
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
 
     // Use users from props (from database)
     const users = initialUsers;
@@ -31,6 +42,20 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
         return status === 'Aktif'
             ? 'bg-green-100 text-green-700'
             : 'bg-gray-100 text-gray-700';
+    };
+
+    // Handle delete user
+    const handleDeleteUser = (user) => {
+        if (confirm(`Apakah Anda yakin ingin menghapus akun ${user.name}?\n\nTindakan ini tidak dapat dibatalkan.`)) {
+            router.delete(route('users.destroy', user.id), {
+                onSuccess: () => {
+                    // Success handled by flash message
+                },
+                onError: (errors) => {
+                    alert(errors.message || 'Gagal menghapus user');
+                }
+            });
+        }
     };
 
     // Statistics cards - use data from backend or show '-'

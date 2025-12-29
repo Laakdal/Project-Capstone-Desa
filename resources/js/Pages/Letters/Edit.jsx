@@ -1,73 +1,26 @@
-﻿import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import RichTextEditor from '@/Components/RichTextEditor';
 import Sidebar, { Topbar } from '@/Components/Sidebar';
-import { generateLetterTemplate } from '@/utils/letterTemplates';
-import { useEffect } from 'react';
+import { AlertCircle } from 'lucide-react';
 
-export default function Create() {
-    const { auth } = usePage().props;
-    const user = auth.user;
-    const { data, setData, post, processing, errors } = useForm({
-        template_type: '',
-        letter_number: '',
-        subject: '', // Perihal
-        recipient: '', // Penerima
+export default function Edit({ letter, secretaryNotes }) {
+    const { data, setData, put, processing, errors } = useForm({
+        template_type: letter.template_type || '',
+        letter_number: letter.letter_number || '',
+        subject: letter.subject || '',
+        recipient: letter.recipient || '',
         status: 'draft',
-        content: '',
-        meta_data: {
-            perihal: '',
-            tujuan: '',
-            lampiran: '',
-            nama_lengkap: '',
-            nik: '',
-            tempat_lahir: '',
-            tanggal_lahir: '',
-            jenis_kelamin: '',
-            agama: '',
-            pekerjaan: '',
-            alamat_lengkap: '',
-            jabatan: '',
-        },
+        content: letter.content || '',
+        meta_data: letter.meta_data || {},
     });
 
-    // Define all templates with role restrictions
-    const allTemplates = [
-        { id: 'surat_pengunduran_diri', name: 'Surat Pengunduran Diri', roles: ['Pegawai Desa'] },
-        { id: 'surat_cuti', name: 'Surat Cuti', roles: ['Pegawai Desa'] },
-        { id: 'memo', name: 'Memo', roles: ['Pegawai Desa'] },
-        { id: 'surat_keputusan', name: 'Surat Keputusan (SK)', roles: ['Sekretaris Desa'] },
-        { id: 'surat_perintah_perjalanan_dinas', name: 'Surat Perintah Perjalanan Dinas (SPPD)', roles: ['Sekretaris Desa'] },
-        { id: 'surat_tugas', name: 'Surat Tugas (ST)', roles: ['Sekretaris Desa'] },
+    const templates = [
+        { id: 'surat_pengunduran_diri', name: 'Surat Pengunduran Diri' },
+        { id: 'surat_keputusan', name: 'Surat Keputusan (SK)' },
+        { id: 'surat_perintah_perjalanan_dinas', name: 'Surat Perintah Perjalanan Dinas (SPPD)' },
+        { id: 'surat_tugas', name: 'Surat Tugas (ST)' },
+        { id: 'memo', name: 'Memo' },
     ];
-
-    // Filter templates based on user role
-    const templates = allTemplates.filter(template =>
-        template.roles.includes(user.role)
-    );
-
-    // Redirect Kepala Desa if they try to access this page
-    useEffect(() => {
-        if (user.role === 'Kepala Desa') {
-            window.location.href = '/dashboard';
-        }
-    }, [user.role]);
-
-
-    const generateTemplateContent = (type) => {
-        // Get current user data from Inertia page props
-        const user = usePage().props.auth.user;
-
-        // Use the helper function from letterTemplates.js
-        return generateLetterTemplate(type, user);
-    };
-    const handleTemplateChange = (e) => {
-        const type = e.target.value;
-        setData(prev => ({
-            ...prev,
-            template_type: type,
-            content: generateTemplateContent(type)
-        }));
-    };
 
     const handleMetaChange = (field, value) => {
         setData('meta_data', { ...data.meta_data, [field]: value });
@@ -104,22 +57,42 @@ export default function Create() {
 
     const submit = (status) => {
         data.status = status;
-        post(route('letters.store'));
+        put(route('letters.update', letter.id));
     };
 
     return (
         <div className="flex h-screen bg-gray-50">
-            <Head title="Pembuatan Surat" />
+            <Head title="Revisi Surat" />
 
             {/* Sidebar */}
             <Sidebar />
 
             {/* Main Content */}
             <main className="flex-1 overflow-auto">
-                <Topbar pageTitle="Pembuatan Surat" />
+                <Topbar pageTitle="Revisi Surat" />
 
                 <div className="p-6">
                     <div className="mx-auto max-w-7xl">
+                        {/* Secretary Notes Alert */}
+                        {secretaryNotes && (
+                            <div className="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+                                <div className="flex items-start">
+                                    <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
+                                    <div className="ml-3">
+                                        <h3 className="text-sm font-semibold text-yellow-800">
+                                            Catatan dari Sekretaris Desa
+                                        </h3>
+                                        <p className="mt-2 text-sm text-yellow-700">
+                                            {secretaryNotes}
+                                        </p>
+                                        <p className="mt-2 text-xs text-yellow-600 italic">
+                                            Silakan perbaiki surat sesuai catatan di atas, lalu kirim ulang.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex gap-6">
                             {/* Form Controls */}
                             <div className="w-1/3 space-y-6">
@@ -128,10 +101,10 @@ export default function Create() {
 
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700">Pilih Template</label>
+                                            <label className="block text-sm font-medium text-gray-700">Template</label>
                                             <select
                                                 value={data.template_type}
-                                                onChange={handleTemplateChange}
+                                                onChange={e => setData('template_type', e.target.value)}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                             >
                                                 <option value="">-- Pilih Template --</option>
@@ -158,7 +131,6 @@ export default function Create() {
                                                 type="text"
                                                 value={data.subject}
                                                 onChange={e => setData('subject', e.target.value)}
-                                                placeholder="Perihal surat"
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                             />
                                             <p className="mt-1 text-xs text-gray-500">Penerima: Sekretaris Desa (otomatis)</p>
@@ -169,7 +141,7 @@ export default function Create() {
                                         <button
                                             onClick={() => submit('draft')}
                                             disabled={processing}
-                                            className="w-full bg-gray-200 text-gray-800 rounded py-2 hover:bg-gray-300"
+                                            className="w-full bg-gray-200 text-gray-800 rounded py-2 hover:bg-gray-300 disabled:opacity-50"
                                         >
                                             Simpan Draft
                                         </button>
@@ -183,9 +155,9 @@ export default function Create() {
                                         <button
                                             onClick={() => submit('sent')}
                                             disabled={processing}
-                                            className="w-full bg-green-600 text-white rounded py-2 hover:bg-green-700"
+                                            className="w-full bg-green-600 text-white rounded py-2 hover:bg-green-700 disabled:opacity-50"
                                         >
-                                            Kirim Surat
+                                            Kirim Ulang Surat
                                         </button>
                                     </div>
                                 </div>
@@ -226,4 +198,3 @@ export default function Create() {
         </div>
     );
 }
-
