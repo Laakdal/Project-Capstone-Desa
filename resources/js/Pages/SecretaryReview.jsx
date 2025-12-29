@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import Sidebar from '@/Components/Sidebar';
 import Topbar from '@/Components/Topbar';
-import { CheckCircle, XCircle, Eye, Calendar, User as UserIcon } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Calendar, User as UserIcon, Clock, ArrowRight, RotateCcw } from 'lucide-react';
 import { toast } from 'react-toastify';
 
-export default function SecretaryReview({ auth, letters, flash }) {
+export default function SecretaryReview({ auth, letters, statistics = {}, flash }) {
     const [selectedLetter, setSelectedLetter] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [action, setAction] = useState('');
@@ -57,52 +57,44 @@ export default function SecretaryReview({ auth, letters, flash }) {
             <Sidebar />
 
             <div className="flex-1 flex flex-col overflow-hidden">
-                <Topbar />
+                <Topbar pageTitle="Review Surat" />
 
                 <main className="flex-1 overflow-y-auto p-6">
-                    {/* Header */}
-                    <div className="mb-6">
-                        <div className="flex items-center gap-3 mb-2">
-                            <CheckCircle className="w-8 h-8 text-blue-600" />
-                            <h1 className="text-2xl font-bold text-gray-900">Review Surat</h1>
-                        </div>
-                        <p className="text-gray-600">
-                            Surat yang menunggu review dari Sekretaris Desa
-                        </p>
-                    </div>
-
                     {/* Statistics Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6">
-                            <div className="flex items-start justify-between">
+                        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-6 shadow-sm">
+                            <div className="flex items-center justify-between">
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium text-gray-600 mb-1">Menunggu Review</p>
-                                    <p className="text-3xl font-bold text-yellow-600 mb-2">{letters.total || 0}</p>
-                                    <p className="text-xs text-gray-500">Surat perlu diverifikasi</p>
+                                    <p className="text-sm text-gray-600 mb-1">Menunggu Review</p>
+                                    <p className="text-3xl font-bold text-yellow-700">{letters.total || 0}</p>
                                 </div>
-                                <div className="text-4xl">📋</div>
+                                <div className="bg-yellow-200 p-3 rounded-lg">
+                                    <Clock className="w-6 h-6 text-yellow-700" />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6">
-                            <div className="flex items-start justify-between">
+                        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 shadow-sm">
+                            <div className="flex items-center justify-between">
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium text-gray-600 mb-1">Diteruskan</p>
-                                    <p className="text-3xl font-bold text-green-600 mb-2">0</p>
-                                    <p className="text-xs text-gray-500">Surat yang disetujui</p>
+                                    <p className="text-sm text-gray-600 mb-1">Diteruskan</p>
+                                    <p className="text-3xl font-bold text-green-700">{statistics.continued || 0}</p>
                                 </div>
-                                <div className="text-4xl">✅</div>
+                                <div className="bg-green-200 p-3 rounded-lg">
+                                    <ArrowRight className="w-6 h-6 text-green-700" />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6">
-                            <div className="flex items-start justify-between">
+                        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-6 shadow-sm">
+                            <div className="flex items-center justify-between">
                                 <div className="flex-1">
-                                    <p className="text-sm font-medium text-gray-600 mb-1">Dikembalikan</p>
-                                    <p className="text-3xl font-bold text-red-600 mb-2">0</p>
-                                    <p className="text-xs text-gray-500">Surat perlu revisi</p>
+                                    <p className="text-sm text-gray-600 mb-1">Dikembalikan</p>
+                                    <p className="text-3xl font-bold text-red-700">{statistics.revoked || 0}</p>
                                 </div>
-                                <div className="text-4xl">↩️</div>
+                                <div className="bg-red-200 p-3 rounded-lg">
+                                    <RotateCcw className="w-6 h-6 text-red-700" />
+                                </div>
                             </div>
                         </div>
                     </div>

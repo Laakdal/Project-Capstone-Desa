@@ -15,12 +15,11 @@ export default function Sidebar({ children }) {
         {
             id: 'pengelolaan-surat',
             icon: FolderOpen,
-            label: (user?.role === 'Sekretaris Desa' || user?.role === 'Kepala Desa') ? 'Arsip' : 'Pengelolaan Surat',
+            label: (user?.role === 'Sekretaris Desa' || user?.role === 'Kepala Desa') ? 'Arsip Surat' : 'Pengelolaan Surat',
             href: (user?.role === 'Sekretaris Desa' || user?.role === 'Kepala Desa') ? '/arsip' : '/pengelolaan-surat',
             roles: ['Sekretaris Desa', 'Kepala Desa']
         },
         { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['Sekretaris Desa', 'Kepala Desa'] },
-        { id: 'laporan', icon: FileText, label: 'Laporan', href: '/laporan', roles: ['Sekretaris Desa', 'Kepala Desa'] },
         { id: 'pengaturan', icon: Settings, label: 'Pengaturan', href: '/pengaturan', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] }
     ];
 

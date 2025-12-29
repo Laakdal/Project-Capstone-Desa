@@ -121,8 +121,19 @@ class LetterApprovalController extends Controller
             ->latest()
             ->paginate(20);
         
+        // Calculate statistics
+        $statistics = [
+            'continued' => Letter::where('verified_by', $user->id)
+                ->where('status', Letter::STATUS_CONTINUED)
+                ->count(),
+            'revoked' => Letter::where('verified_by', $user->id)
+                ->where('status', Letter::STATUS_REVOKED)
+                ->count(),
+        ];
+        
         return inertia('SecretaryReview', [
             'letters' => $letters,
+            'statistics' => $statistics,
         ]);
     }
     

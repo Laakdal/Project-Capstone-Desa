@@ -1,25 +1,32 @@
 import React from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import Sidebar from '@/Components/Sidebar';
+import Topbar from '@/Components/Topbar';
 import { Settings as SettingsIcon, User, Bell, Shield, Database } from 'lucide-react';
 
 export default function Settings({ auth }) {
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={
-                <div className="flex items-center gap-3">
-                    <SettingsIcon className="w-6 h-6 text-blue-600" />
-                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                        Pengaturan
-                    </h2>
-                </div>
-            }
-        >
+        <div className="flex h-screen bg-gray-50">
             <Head title="Pengaturan" />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <Sidebar />
+
+            <div className="flex-1 flex flex-col overflow-hidden">
+                <Topbar />
+
+                <main className="flex-1 overflow-y-auto p-6">
+                    {/* Header */}
+                    <div className="mb-6">
+                        <div className="flex items-center gap-3 mb-2">
+                            <SettingsIcon className="w-8 h-8 text-blue-600" />
+                            <h1 className="text-2xl font-bold text-gray-900">Pengaturan</h1>
+                        </div>
+                        <p className="text-gray-600">
+                            Kelola pengaturan akun dan sistem Anda
+                        </p>
+                    </div>
+
+                    {/* Settings Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Profile Settings */}
                         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -89,34 +96,9 @@ export default function Settings({ auth }) {
                                 </button>
                             </div>
                         </div>
-
-                        {/* System Settings */}
-                        {(auth.user.user_role?.name === 'Sekretaris Desa' || auth.user.user_role?.name === 'Kepala Desa') && (
-                            <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                                <div className="p-6">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 bg-purple-100 rounded-lg">
-                                            <Database className="w-6 h-6 text-purple-600" />
-                                        </div>
-                                        <h3 className="text-lg font-semibold text-gray-900">
-                                            Pengaturan Sistem
-                                        </h3>
-                                    </div>
-                                    <p className="text-gray-600 mb-4">
-                                        Konfigurasi sistem dan data master
-                                    </p>
-                                    <button
-                                        disabled
-                                        className="inline-flex items-center px-4 py-2 bg-gray-300 border border-transparent rounded-md font-semibold text-xs text-gray-600 uppercase tracking-widest cursor-not-allowed"
-                                    >
-                                        Segera Hadir
-                                    </button>
-                                </div>
-                            </div>
-                        )}
                     </div>
-                </div>
+                </main>
             </div>
-        </AuthenticatedLayout>
+        </div>
     );
 }
