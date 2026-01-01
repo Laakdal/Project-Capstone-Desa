@@ -116,6 +116,32 @@ class LetterController extends Controller
         return $pdf->stream('preview.pdf');
     }
 
+    /**
+     * Show PDF for viewing (from Dashboard)
+     */
+    public function show(Letter $letter)
+    {
+        $user = auth()->user();
+        
+        // Authorization: Pegawai can view own letters, Sekdes/Kades can view all
+        if ($user->isPegawai()) {
+            // Pegawai can only view their own letters
+            if ($letter->user_id !== $user->id) {
+                abort(403, 'Anda tidak memiliki akses ke surat ini.');
+            }
+        } elseif (!in_array($user->role, ['Sekretaris Desa', 'Kepala Desa'])) {
+            // Only Sekdes and Kades can view all letters
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+        
+        // Check if PDF exists
+        if (!$letter->pdf_path || !file_exists(storage_path('app/public/' . $letter->pdf_path))) {
+            abort(404, 'PDF tidak ditemukan.');
+        }
+        
+        return response()->file(storage_path('app/public/' . $letter->pdf_path));
+    }
+
     public function edit($id)
     {
         // Manually fetch the letter instead of using route model binding

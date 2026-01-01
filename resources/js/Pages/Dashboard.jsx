@@ -231,7 +231,7 @@ function LettersTable({ letters, showReviewActions, showApprovalActions }) {
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                                 {showReviewActions && <a href={`/arsip/${letter.id}/pdf`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-900 font-medium">Review</a>}
                                 {showApprovalActions && <Link href={`/kepala-desa/approval/${letter.id}`} className="text-green-600 hover:text-green-900 font-medium">Setujui</Link>}
-                                {!showReviewActions && !showApprovalActions && <Link href={`/surat/${letter.id}`} className="text-blue-600 hover:text-blue-900 font-medium">Lihat</Link>}
+                                {!showReviewActions && !showApprovalActions && <a href={`/pengelolaan-surat/${letter.id}/pdf`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-900 font-medium">Lihat</a>}
                             </td>
                         </tr>
                     ))}
