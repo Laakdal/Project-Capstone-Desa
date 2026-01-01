@@ -127,4 +127,12 @@ class Letter extends Model
     {
         return $query->where('status', self::STATUS_REVOKED);
     }
+
+    /**
+     * Get the attachments for the letter.
+     */
+    public function attachments()
+    {
+        return $this->hasMany(LetterAttachment::class);
+    }
 }

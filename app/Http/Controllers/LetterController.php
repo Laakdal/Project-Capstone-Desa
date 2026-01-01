@@ -79,8 +79,8 @@ class LetterController extends Controller
         // Create letter
         $letter = $request->user()->letters()->create($validated);
 
-        // Generate PDF if status is 'sent' or 'continued'
-        if (in_array($validated['status'], ['sent', Letter::STATUS_CONTINUED]) && !empty($validated['content'])) {
+        // Generate PDF regardless of status (draft or sent) as long as content exists
+        if (!empty($validated['content'])) {
             $pdf = Pdf::loadView('letters.pdf', ['letterContent' => $validated['content']]);
             
             // Create filename
@@ -88,10 +88,20 @@ class LetterController extends Controller
             
             // Save PDF to storage/app/public/letters
             $path = 'letters/' . $filename;
+            
+            // Simpan ke File System (Storage)
             Storage::disk('public')->put($path, $pdf->output());
             
             // Update letter with PDF path
             $letter->update(['pdf_path' => $path]);
+            
+            // Simpan ke Database (Tabel letter_attachments)
+            \App\Models\LetterAttachment::create([
+                'letter_id' => $letter->id,
+                'filename' => $filename,
+                'mime_type' => 'application/pdf',
+                'file_content' => base64_encode($pdf->output()) // Encode binary to base64 if needed, or save raw binary
+            ]);
         }
 
         return redirect()->route('dashboard')->with('success', 'Surat berhasil dikirim!');
@@ -99,13 +109,9 @@ class LetterController extends Controller
 
     public function preview(Letter $letter)
     {
-        // For security, ensure the user owns the letter or has permission
-        if ($letter->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        $pdf = Pdf::loadView('letters.pdf', ['letterContent' => $letter->content]);
-        return $pdf->stream('Surat_' . $letter->id . '.pdf');
+        return Inertia::render('Letters/Show', [
+            'letter' => $letter->load('user', 'letterType'),
+        ]);
     }
 
     public function previewPdf(Request $request)
@@ -134,64 +140,67 @@ class LetterController extends Controller
             abort(403, 'Anda tidak memiliki akses.');
         }
         
-        // Check if PDF exists
-        if (!$letter->pdf_path || !file_exists(storage_path('app/public/' . $letter->pdf_path))) {
-            abort(404, 'PDF tidak ditemukan.');
+        // Priority 1: Check File System
+        if ($letter->pdf_path && file_exists(storage_path('app/public/' . $letter->pdf_path))) {
+            return response()->file(storage_path('app/public/' . $letter->pdf_path));
         }
         
-        return response()->file(storage_path('app/public/' . $letter->pdf_path));
+        // Priority 2: Check Database (Attachments table)
+        $attachment = \App\Models\LetterAttachment::where('letter_id', $letter->id)->latest()->first();
+        if ($attachment) {
+            $fileContent = base64_decode($attachment->file_content); // If stored as base64
+            // $fileContent = $attachment->file_content; // If stored as raw binary
+            
+            return response($fileContent)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'inline; filename="' . $attachment->filename . '"');
+        }
+        
+        abort(404, 'PDF tidak ditemukan.');
     }
 
     public function edit($id)
     {
         // Manually fetch the letter instead of using route model binding
-        $letter = Letter::findOrFail($id);
-        
-        $currentUserId = auth()->id();
-        $letterUserId = $letter->user_id;
-        
-        // Debug logging
-        \Log::info('Edit attempt', [
-            'current_user_id' => $currentUserId,
-            'current_user_id_type' => gettype($currentUserId),
-            'letter_user_id' => $letterUserId,
-            'letter_user_id_type' => gettype($letterUserId),
-            'letter_id' => $letter->id,
-            'letter_status' => $letter->status,
-            'comparison_strict' => ($letter->user_id !== auth()->id()),
-            'comparison_loose' => ($letter->user_id != auth()->id()),
-        ]);
-        
-        // Ensure the user owns the letter (use loose comparison or cast to int)
-        if ((int)$letter->user_id !== (int)auth()->id()) {
-            abort(403, 'Anda tidak memiliki akses untuk mengedit surat ini. (User ID: ' . $currentUserId . ' ['.gettype($currentUserId).'] vs Letter User ID: ' . $letterUserId . ' ['.gettype($letterUserId).'])');
+        // to troubleshoot the 404 issue
+        $letter = Letter::find($id);
+
+        if (!$letter) {
+            return redirect()->route('dashboard')->with('error', 'Surat tidak ditemukan');
         }
 
-        // Only allow editing if status is draft or revoked
-        if (!in_array($letter->status, ['draft', 'revoked'])) {
-            return redirect()->route('letter-management.index')
-                ->with('error', 'Surat ini tidak dapat diedit. Status saat ini: ' . $letter->status);
+        // Check authorization
+        if ($letter->user_id !== auth()->id()) {
+            abort(403);
         }
+
+        // Only draft letters can be edited
+        // But we allow editing if it's rejected or revoked too, just to be safe
+        // if (!in_array($letter->status, ['draft', 'rejected', 'revoked'])) {
+        //     return redirect()->route('dashboard')->with('error', 'Surat tidak dapat diedit karena statusnya ' . $letter->status);
+        // }
 
         return Inertia::render('Letters/Edit', [
             'letter' => $letter,
-            'secretaryNotes' => $letter->secretary_notes,
+            // Pass any other necessary data (templates, etc.)
+            'templates' => [
+                ['id' => 'surat_keterangan', 'name' => 'Surat Keterangan'],
+                ['id' => 'surat_pengantar', 'name' => 'Surat Pengantar'],
+                ['id' => 'surat_rekomendasi', 'name' => 'Surat Rekomendasi'],
+                ['id' => 'surat_cuti', 'name' => 'Surat Cuti'],
+                ['id' => 'memo', 'name' => 'Memo'],
+            ]
         ]);
     }
-
+    
     public function update(Request $request, $id)
     {
         // Manually fetch the letter instead of using route model binding
         $letter = Letter::findOrFail($id);
-        // Ensure the user owns the letter (cast to int for comparison)
-        if ((int)$letter->user_id !== (int)auth()->id()) {
+        
+        // Ensure the user owns the letter
+        if ($letter->user_id !== auth()->id()) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit surat ini.');
-        }
-
-        // Only allow updating if status is draft or revoked
-        if (!in_array($letter->status, ['draft', 'revoked'])) {
-            return redirect()->route('letter-management.index')
-                ->with('error', 'Surat ini tidak dapat diedit.');
         }
 
         $validated = $request->validate([
@@ -211,11 +220,11 @@ class LetterController extends Controller
             $validated['letter_number'] = $this->generateLetterNumber($validated['template_type']);
         }
 
-        // Update letter
+        // Update letter (except PDF path for now)
         $letter->update($validated);
 
-        // If status changed to 'sent', regenerate PDF and clear secretary notes
-        if ($validated['status'] === 'sent' && !empty($validated['content'])) {
+        // If content is present, always generate PDF regardless of status (draft or sent)
+        if (!empty($validated['content'])) {
             $pdf = Pdf::loadView('letters.pdf', ['letterContent' => $validated['content']]);
             
             // Create filename
@@ -230,16 +239,37 @@ class LetterController extends Controller
             $path = 'letters/' . $filename;
             Storage::disk('public')->put($path, $pdf->output());
             
-            // Update letter with new PDF path and clear notes
-            $letter->update([
-                'pdf_path' => $path,
-                'secretary_notes' => null,
-                'verified_by' => null,
-                'verified_at' => null,
-            ]);
+            // Update letter with new PDF path
+            // Clear secretary notes if sent back
+            $updateData = ['pdf_path' => $path];
+            if ($validated['status'] === 'sent') {
+                $updateData['secretary_notes'] = null;
+                $updateData['verified_by'] = null;
+                $updateData['verified_at'] = null;
+            }
+            $letter->update($updateData);
+            
+            // Simpan juga ke Database (Attachment)
+            $existingAttachment = \App\Models\LetterAttachment::where('letter_id', $letter->id)->latest()->first();
+            
+            if ($existingAttachment) {
+                // Update existing attachment
+                $existingAttachment->update([
+                    'filename' => $filename,
+                    'file_content' => base64_encode($pdf->output())
+                ]);
+            } else {
+                // Create new attachment
+                \App\Models\LetterAttachment::create([
+                    'letter_id' => $letter->id,
+                    'filename' => $filename,
+                    'mime_type' => 'application/pdf',
+                    'file_content' => base64_encode($pdf->output())
+                ]);
+            }
         }
 
-        return redirect()->route('letter-management.index')
+        return redirect()->route('dashboard')
             ->with('success', 'Surat berhasil diperbarui!');
     }
 
