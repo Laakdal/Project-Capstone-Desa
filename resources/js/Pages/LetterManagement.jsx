@@ -187,7 +187,7 @@ export default function LetterManagement({
         const statusMap = {
             'draft': { label: 'Draft', color: 'bg-gray-100 text-gray-800' },
             'sent': { label: 'Terkirim', color: 'bg-blue-100 text-blue-800' },
-            'revoked': { label: 'Dikembalikan', color: 'bg-yellow-100 text-yellow-800' },
+            'revoked': { label: 'Perlu Direvisi', color: 'bg-yellow-100 text-yellow-800' },
             'continued': { label: 'Diteruskan', color: 'bg-orange-100 text-orange-800' },
             'approved': { label: 'Disetujui', color: 'bg-green-100 text-green-800' },
             'rejected': { label: 'Ditolak', color: 'bg-red-100 text-red-800' },
@@ -492,14 +492,24 @@ export default function LetterManagement({
                                                                         </>
                                                                     )}
 
-                                                                    {/* Edit button for draft or revoked letters (Pegawai only) */}
-                                                                    {!isArsip && (letter.status === 'draft' || letter.status === 'revoked') && (
+                                                                    {/* Edit/Revisi button for draft or revoked letters (Pegawai only) */}
+                                                                    {!isArsip && letter.status === 'draft' && (
                                                                         <a
                                                                             href={route('letters.edit', letter.id)}
                                                                             className="text-yellow-600 hover:text-yellow-900"
-                                                                            title={letter.status === 'revoked' ? 'Revisi Surat' : 'Edit Surat'}
+                                                                            title="Edit Surat"
                                                                         >
                                                                             <Edit2 className="w-4 h-4" />
+                                                                        </a>
+                                                                    )}
+                                                                    {!isArsip && letter.status === 'revoked' && (
+                                                                        <a
+                                                                            href={route('letters.edit', letter.id)}
+                                                                            className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white text-xs font-medium rounded hover:bg-yellow-600 transition-colors"
+                                                                            title="Revisi Surat"
+                                                                        >
+                                                                            <Edit2 className="w-4 h-4" />
+                                                                            Revisi
                                                                         </a>
                                                                     )}
 
