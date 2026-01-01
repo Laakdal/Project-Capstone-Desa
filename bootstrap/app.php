@@ -16,9 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // Replace default CSRF middleware with custom one that excludes preview-pdf
-        $middleware->web(replace: [
-            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class => \App\Http\Middleware\VerifyCsrfToken::class,
+        // TEMPORARY BYPASS for debugging the 419 issue
+        $middleware->validateCsrfTokens(except: [
+            '*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
