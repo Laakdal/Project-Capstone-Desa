@@ -250,4 +250,35 @@ class LetterController extends Controller
         
         return sprintf('%s/%03d/%s', $prefix, $nextNumber, $year);
     }
+
+    /**
+     * Delete a letter (only drafts can be deleted)
+     */
+    public function destroy(Letter $surat)
+    {
+        $user = auth()->user();
+        
+        // Only the creator can delete their own letter
+        if ($surat->user_id !== $user->id) {
+            return redirect()->back()
+                ->with('error', 'Anda tidak memiliki akses untuk menghapus surat ini.');
+        }
+        
+        // Only draft letters can be deleted
+        if ($surat->status !== Letter::STATUS_DRAFT) {
+            return redirect()->back()
+                ->with('error', 'Hanya surat dengan status draft yang dapat dihapus.');
+        }
+        
+        // Delete PDF file if exists
+        if ($surat->pdf_path && Storage::disk('public')->exists($surat->pdf_path)) {
+            Storage::disk('public')->delete($surat->pdf_path);
+        }
+        
+        // Delete the letter
+        $surat->delete();
+        
+        // Return back without flash message (handled by frontend)
+        return back();
+    }
 }

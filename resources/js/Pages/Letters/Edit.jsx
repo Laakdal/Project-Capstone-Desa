@@ -1,9 +1,12 @@
 import { Head, useForm } from '@inertiajs/react';
 import RichTextEditor from '@/Components/RichTextEditor';
 import Sidebar, { Topbar } from '@/Components/Sidebar';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, X } from 'lucide-react';
+import { useState } from 'react';
 
 export default function Edit({ letter, secretaryNotes }) {
+    const [showPreview, setShowPreview] = useState(false);
+
     const { data, setData, put, processing, errors } = useForm({
         template_type: letter.template_type || '',
         letter_number: letter.letter_number || '',
@@ -27,33 +30,73 @@ export default function Edit({ letter, secretaryNotes }) {
         setData('meta_data', { ...data.meta_data, [field]: value });
     };
 
+    // Simple preview - show modal
     const handlePreview = () => {
-        // Create a temporary form to submit to the preview route in a new tab
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = route('letters.preview_pdf');
-        form.target = '_blank';
-
-        // Add CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '_token';
-            csrfInput.value = csrfToken;
-            form.appendChild(csrfInput);
+        if (!data.content) {
+            alert('Silakan isi konten surat terlebih dahulu');
+            return;
         }
+        setShowPreview(true);
+    };
 
-        // Add content
-        const contentInput = document.createElement('input');
-        contentInput.type = 'hidden';
-        contentInput.name = 'content';
-        contentInput.value = data.content;
-        form.appendChild(contentInput);
-
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
+    // Print preview content
+    const handlePrint = () => {
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Preview Surat</title>
+                <style>
+                    @page { size: A4; margin: 2cm; }
+                    body { 
+                        font-family: 'Times New Roman', serif; 
+                        font-size: 12pt;
+                        line-height: 1.5;
+                        padding: 20px;
+                    }
+                    .header { 
+                        display: flex; 
+                        align-items: center; 
+                        margin-bottom: 15px;
+                    }
+                    .header img { height: 90px; }
+                    .header-text { 
+                        text-align: center; 
+                        flex: 1;
+                        padding-right: 90px;
+                    }
+                    .header-text p { margin: 0; line-height: 1.2; }
+                    .border-line { 
+                        border-bottom: 3px solid #8B4513; 
+                        margin: 10px 0 20px 0; 
+                    }
+                    p {
+                        margin-bottom: 1em;
+                    }
+                    @media print {
+                        body { margin: 0; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <img src="/logo_desa.png" alt="Logo" />
+                    <div class="header-text">
+                        <p style="font-size: 14pt; font-weight: bold;">PEMERINTAH KABUPATEN GARUT</p>
+                        <p style="font-size: 14pt; font-weight: bold;">KECAMATAN BAYONGBONG</p>
+                        <p style="font-size: 18pt; font-weight: 900;">DESA BANJARSARI</p>
+                        <p style="font-size: 11pt; font-style: italic; margin-top: 5px;">Alamat : Jln. Ciloa No. 09 Banjarsari Bayongbong Garut - 44162</p>
+                    </div>
+                </div>
+                <div class="border-line"></div>
+                ${data.content}
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => printWindow.print(), 250);
     };
 
     const submit = (status) => {
@@ -118,42 +161,31 @@ export default function Edit({ letter, secretaryNotes }) {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700">Nomor Surat</label>
-                                            <input
-                                                type="text"
-                                                value={data.letter_number}
-                                                onChange={e => setData('letter_number', e.target.value)}
-                                                placeholder="Auto Generate / Manual"
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                            />
-                                        </div>
-
-                                        <div>
                                             <label className="block text-sm font-medium text-gray-700">Perihal</label>
                                             <input
                                                 type="text"
                                                 value={data.subject}
                                                 onChange={e => setData('subject', e.target.value)}
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                placeholder="Perihal surat"
                                             />
-                                            <p className="mt-1 text-xs text-gray-500">Penerima: Sekretaris Desa (otomatis)</p>
                                         </div>
                                     </div>
 
-                                    <div className="mt-6 flex flex-col gap-2">
+                                    <div className="mt-6 space-y-3">
                                         <button
                                             onClick={() => submit('draft')}
                                             disabled={processing}
-                                            className="w-full bg-gray-200 text-gray-800 rounded py-2 hover:bg-gray-300 disabled:opacity-50"
+                                            className="w-full bg-gray-600 text-white rounded py-2 hover:bg-gray-700 disabled:opacity-50"
                                         >
-                                            Simpan Draft
+                                            Simpan sebagai Draft
                                         </button>
                                         <button
                                             onClick={handlePreview}
                                             type="button"
                                             className="w-full bg-indigo-100 text-indigo-700 rounded py-2 hover:bg-indigo-200"
                                         >
-                                            Preview PDF
+                                            Preview
                                         </button>
                                         <button
                                             onClick={() => submit('sent')}
@@ -198,6 +230,79 @@ export default function Edit({ letter, secretaryNotes }) {
                     </div>
                 </div>
             </main>
+
+            {/* Preview Modal - PDF Style */}
+            {showPreview && (
+                <div className="fixed inset-0 bg-gray-900 flex flex-col z-50">
+                    {/* Modal Header - Dark toolbar */}
+                    <div className="flex justify-between items-center px-6 py-3 bg-gray-800 text-white">
+                        <h3 className="text-lg font-medium">Preview Surat</h3>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handlePrint}
+                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                </svg>
+                                Print / Save PDF
+                            </button>
+                            <button
+                                onClick={() => setShowPreview(false)}
+                                className="p-2 hover:bg-gray-700 rounded"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* PDF Viewer Area - Dark background with white paper */}
+                    <div className="flex-1 overflow-auto p-8 flex justify-center" style={{ backgroundColor: '#525659' }}>
+                        {/* A4 Paper */}
+                        <div
+                            className="bg-white shadow-2xl"
+                            style={{
+                                width: '210mm',
+                                minHeight: '297mm',
+                                padding: '20mm 25mm',
+                                fontFamily: "'Times New Roman', serif",
+                                fontSize: '12pt',
+                                lineHeight: 1.5,
+                            }}
+                        >
+                            {/* Letter Header */}
+                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+                                <div style={{ width: '15%', textAlign: 'center' }}>
+                                    <img src="/logo_desa.png" alt="Logo" style={{ height: '80px', width: 'auto' }} />
+                                </div>
+                                <div style={{ width: '85%', textAlign: 'center', paddingRight: '15%' }}>
+                                    <p style={{ margin: 0, fontSize: '14pt', fontWeight: 'bold', lineHeight: 1.2 }}>PEMERINTAH KABUPATEN GARUT</p>
+                                    <p style={{ margin: 0, fontSize: '14pt', fontWeight: 'bold', lineHeight: 1.2 }}>KECAMATAN BAYONGBONG</p>
+                                    <p style={{ margin: 0, fontSize: '18pt', fontWeight: '900', lineHeight: 1.2 }}>DESA BANJARSARI</p>
+                                    <p style={{ margin: 0, fontSize: '10pt', fontStyle: 'italic', marginTop: '5px' }}>Alamat : Jln. Ciloa No. 09 Banjarsari Bayongbong Garut - 44162</p>
+                                </div>
+                            </div>
+                            <div style={{ borderBottom: '3px solid #8B4513', marginBottom: '20px' }}></div>
+
+                            {/* Letter Content - with proper paragraph spacing */}
+                            <div
+                                dangerouslySetInnerHTML={{ __html: data.content }}
+                                className="letter-content-preview"
+                            />
+                            <style>{`
+                                .letter-content-preview p {
+                                    margin-bottom: 1em;
+                                }
+                                .letter-content-preview br {
+                                    display: block;
+                                    content: "";
+                                    margin-top: 0.5em;
+                                }
+                            `}</style>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

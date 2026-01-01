@@ -29,6 +29,16 @@ export default function LetterManagement({
     const isArsip = isSekdes || isKades;
     const pageTitle = isArsip ? 'Arsip' : 'Pengelolaan Surat';
 
+    // Show flash messages
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
+
     // Get correct route based on role
     const getIndexRoute = () => {
         return isArsip ? '/arsip' : '/pengelolaan-surat';
@@ -150,6 +160,23 @@ export default function LetterManagement({
                 preserveScroll: true,
                 onSuccess: () => {
                     toast.success('Surat berhasil dikeluarkan dari folder');
+                },
+            });
+        }
+    };
+
+    // Delete draft letter
+    const handleDelete = (letterId) => {
+        if (confirm('Apakah Anda yakin ingin menghapus surat draft ini?\n\nTindakan ini tidak dapat dibatalkan.')) {
+            router.delete(route('letters.destroy', letterId), {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Surat berhasil dihapus');
+                },
+                onError: (errors) => {
+                    const errorMessage = errors?.message || Object.values(errors)[0] || 'Gagal menghapus surat';
+                    toast.error(errorMessage);
                 },
             });
         }
@@ -464,7 +491,7 @@ export default function LetterManagement({
                                                                             </a>
                                                                         </>
                                                                     )}
-                                                                    
+
                                                                     {/* Edit button for draft or revoked letters (Pegawai only) */}
                                                                     {!isArsip && (letter.status === 'draft' || letter.status === 'revoked') && (
                                                                         <a
@@ -475,7 +502,7 @@ export default function LetterManagement({
                                                                             <Edit2 className="w-4 h-4" />
                                                                         </a>
                                                                     )}
-                                                                    
+
                                                                     {/* Delete button for draft letters (Pegawai only) */}
                                                                     {!isArsip && letter.status === 'draft' && (
                                                                         <button
@@ -486,7 +513,7 @@ export default function LetterManagement({
                                                                             <Trash2 className="w-4 h-4" />
                                                                         </button>
                                                                     )}
-                                                                    
+
                                                                     {isArsip && (
                                                                         <>
                                                                             <button
