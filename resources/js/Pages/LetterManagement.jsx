@@ -464,6 +464,29 @@ export default function LetterManagement({
                                                                             </a>
                                                                         </>
                                                                     )}
+                                                                    
+                                                                    {/* Edit button for draft or revoked letters (Pegawai only) */}
+                                                                    {!isArsip && (letter.status === 'draft' || letter.status === 'revoked') && (
+                                                                        <a
+                                                                            href={route('letters.edit', letter.id)}
+                                                                            className="text-yellow-600 hover:text-yellow-900"
+                                                                            title={letter.status === 'revoked' ? 'Revisi Surat' : 'Edit Surat'}
+                                                                        >
+                                                                            <Edit2 className="w-4 h-4" />
+                                                                        </a>
+                                                                    )}
+                                                                    
+                                                                    {/* Delete button for draft letters (Pegawai only) */}
+                                                                    {!isArsip && letter.status === 'draft' && (
+                                                                        <button
+                                                                            onClick={() => handleDelete(letter.id)}
+                                                                            className="text-red-600 hover:text-red-900"
+                                                                            title="Hapus Surat"
+                                                                        >
+                                                                            <Trash2 className="w-4 h-4" />
+                                                                        </button>
+                                                                    )}
+                                                                    
                                                                     {isArsip && (
                                                                         <>
                                                                             <button

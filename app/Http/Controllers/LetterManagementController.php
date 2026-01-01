@@ -16,20 +16,31 @@ class LetterManagementController extends Controller
     {
         $user = $request->user();
         
-        // STRICT AUTHORIZATION: Only Sekretaris Desa and Kepala Desa can access archive
-        if (!in_array($user->role, ['Sekretaris Desa', 'Kepala Desa'])) {
-            abort(403);
+        // Determine if this is Arsip (read-only) or Pengelolaan (manage own letters)
+        $isArsip = $request->is('arsip') || $request->is('arsip/*');
+        
+        // Authorization
+        if ($isArsip) {
+            // ARSIP: Only Sekdes & Kades can access
+            if (!in_array($user->role, ['Sekretaris Desa', 'Kepala Desa'])) {
+                abort(403);
+            }
+        } else {
+            // PENGELOLAAN: Only Pegawai Desa can access (manage own letters)
+            if ($user->role !== 'Pegawai Desa') {
+                abort(403);
+            }
         }
         
         // Base query with relationships
         $query = Letter::with(['user', 'folders']);
         
         // Role-based filtering
-        if ($user->isSekdes() || $user->isKades()) {
-            // ARSIP: Sekdes & Kades see only approved or rejected letters
+        if ($isArsip) {
+            // ARSIP MODE: Show only approved/rejected letters (read-only archive)
             $query->whereIn('status', [Letter::STATUS_APPROVED, Letter::STATUS_REJECTED]);
-        } elseif ($user->isPegawai()) {
-            // Pegawai sees only their own letters
+        } else {
+            // PENGELOLAAN MODE: Show user's own letters (all statuses)
             $query->where('user_id', $user->id);
         }
         

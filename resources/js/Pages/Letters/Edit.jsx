@@ -16,10 +16,11 @@ export default function Edit({ letter, secretaryNotes }) {
 
     const templates = [
         { id: 'surat_pengunduran_diri', name: 'Surat Pengunduran Diri' },
+        { id: 'surat_cuti', name: 'Surat Cuti' },
+        { id: 'memo', name: 'Memo' },
         { id: 'surat_keputusan', name: 'Surat Keputusan (SK)' },
         { id: 'surat_perintah_perjalanan_dinas', name: 'Surat Perintah Perjalanan Dinas (SPPD)' },
         { id: 'surat_tugas', name: 'Surat Tugas (ST)' },
-        { id: 'memo', name: 'Memo' },
     ];
 
     const handleMetaChange = (field, value) => {
@@ -105,13 +106,15 @@ export default function Edit({ letter, secretaryNotes }) {
                                             <select
                                                 value={data.template_type}
                                                 onChange={e => setData('template_type', e.target.value)}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                                disabled
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-gray-100 text-gray-500 cursor-not-allowed"
                                             >
                                                 <option value="">-- Pilih Template --</option>
                                                 {templates.map(t => (
                                                     <option key={t.id} value={t.id}>{t.name}</option>
                                                 ))}
                                             </select>
+                                            <p className="mt-1 text-xs text-gray-500 italic">Template tidak dapat diubah saat edit</p>
                                         </div>
 
                                         <div>
