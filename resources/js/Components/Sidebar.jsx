@@ -14,7 +14,7 @@ export default function Sidebar({ children }) {
         { id: 'approval-surat', icon: CheckCircle, label: 'Approval Surat', href: '/approval-surat', roles: ['Kepala Desa'] },
         { id: 'pengelolaan-surat', icon: FileText, label: 'Pengelolaan Surat', href: '/pengelolaan-surat', roles: ['Pegawai Desa'] },
         { id: 'arsip-surat', icon: FolderOpen, label: 'Arsip Surat', href: '/arsip', roles: ['Sekretaris Desa', 'Kepala Desa'] },
-        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['Sekretaris Desa', 'Kepala Desa'] },
+        { id: 'manajemen-akun', icon: Users, label: 'Manajemen Akun', href: '/manajemen-akun', roles: ['Sekretaris Desa'] },
         { id: 'pengaturan', icon: Settings, label: 'Pengaturan', href: '/pengaturan', roles: ['Pegawai Desa', 'Sekretaris Desa', 'Kepala Desa'] }
     ];
 
