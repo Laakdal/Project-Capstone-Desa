@@ -19,26 +19,13 @@ export default function UserEdit({ user }) {
         status: user.status || 'Aktif',
         username: user.username || '',
         password: '', // Leave empty to keep existing password
-        permissions: user.permissions || {
-            kelola_penduduk: false,
-            kelola_surat: false,
-            kelola_keuangan: false,
-            kelola_agenda: false,
-            lihat_laporan: false,
-            kelola_pengaturan: false,
-        }
     });
 
     const roles = ['Kepala Desa', 'Sekretaris Desa', 'Pegawai Desa'];
     const divisions = ['Umum', 'Keuangan', 'Perencanaan', 'Pemerintahan', 'Kesejahteraan'];
     const statuses = ['Aktif', 'Nonaktif', 'Cuti'];
 
-    const handlePermissionChange = (field) => {
-        setData('permissions', {
-            ...data.permissions,
-            [field]: !data.permissions[field]
-        });
-    };
+
 
     const submit = (e) => {
         e.preventDefault();
@@ -289,75 +276,6 @@ export default function UserEdit({ user }) {
                                 </div>
                             </div>
 
-                            {/* Hak Akses */}
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
-                                    Hak Akses
-                                    {!canEditJobInfo && <span className="text-xs text-gray-500 ml-2">(Hanya dapat dilihat)</span>}
-                                </h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <label className={`flex items-center space-x-3 ${canEditJobInfo ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.kelola_penduduk}
-                                            onChange={() => handlePermissionChange('kelola_penduduk')}
-                                            disabled={!canEditJobInfo}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Kelola Data Penduduk</span>
-                                    </label>
-                                    <label className={`flex items-center space-x-3 ${canEditJobInfo ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.kelola_agenda}
-                                            onChange={() => handlePermissionChange('kelola_agenda')}
-                                            disabled={!canEditJobInfo}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Kelola Agenda</span>
-                                    </label>
-                                    <label className={`flex items-center space-x-3 ${canEditJobInfo ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.kelola_surat}
-                                            onChange={() => handlePermissionChange('kelola_surat')}
-                                            disabled={!canEditJobInfo}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Kelola Surat Menyurat</span>
-                                    </label>
-                                    <label className={`flex items-center space-x-3 ${canEditJobInfo ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.lihat_laporan}
-                                            onChange={() => handlePermissionChange('lihat_laporan')}
-                                            disabled={!canEditJobInfo}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Lihat Laporan</span>
-                                    </label>
-                                    <label className={`flex items-center space-x-3 ${canEditJobInfo ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.kelola_keuangan}
-                                            onChange={() => handlePermissionChange('kelola_keuangan')}
-                                            disabled={!canEditJobInfo}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Kelola Keuangan</span>
-                                    </label>
-                                    <label className={`flex items-center space-x-3 ${canEditJobInfo ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.kelola_pengaturan}
-                                            onChange={() => handlePermissionChange('kelola_pengaturan')}
-                                            disabled={!canEditJobInfo}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Kelola Pengaturan</span>
-                                    </label>
-                                </div>
-                            </div>
 
                             <hr className="my-6 border-gray-200" />
 

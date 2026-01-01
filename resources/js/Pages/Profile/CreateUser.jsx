@@ -14,26 +14,13 @@ export default function CreateUser() {
         status: 'Aktif',
         username: '',
         password: '',
-        permissions: {
-            kelola_penduduk: false,
-            kelola_surat: false,
-            kelola_keuangan: false,
-            kelola_agenda: false,
-            lihat_laporan: false,
-            kelola_pengaturan: false,
-        }
     });
 
     const roles = ['Kepala Desa', 'Sekretaris Desa', 'Pegawai Desa'];
     const divisions = ['Umum', 'Keuangan', 'Perencanaan', 'Pemerintahan', 'Kesejahteraan'];
     const statuses = ['Aktif', 'Nonaktif', 'Cuti'];
 
-    const handlePermissionChange = (field) => {
-        setData('permissions', {
-            ...data.permissions,
-            [field]: !data.permissions[field]
-        });
-    };
+
 
     const submit = (e) => {
         e.preventDefault();
@@ -182,98 +169,24 @@ export default function CreateUser() {
                             {/* Pengaturan Akun */}
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Pengaturan Akun</h3>
-                                <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                                        <input
-                                            type="text"
-                                            value={data.username}
-                                            onChange={e => setData('username', e.target.value)}
-                                            placeholder="Masukkan username"
-                                            className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                        />
-                                        {errors.username && <div className="text-red-500 text-xs mt-1">{errors.username}</div>}
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Password Sementara</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Password <span className="text-red-500">*</span></label>
                                         <div className="relative">
                                             <input
-                                                type="text"
+                                                type="password"
                                                 value={data.password}
                                                 onChange={e => setData('password', e.target.value)}
                                                 placeholder="Masukkan password"
-                                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-10"
+                                                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                required
                                             />
-                                            <span className="absolute right-3 top-2.5 text-gray-400">👁️</span>
                                         </div>
-                                        <p className="text-xs text-gray-500 mt-1">Password bisa diubah oleh pengguna setelah login</p>
+                                        <p className="text-xs text-gray-500 mt-1">Password minimal 8 karakter</p>
                                         {errors.password && <div className="text-red-500 text-xs mt-1">{errors.password}</div>}
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Hak Akses */}
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Hak Akses</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <label className="flex items-center space-x-3 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.kelola_penduduk}
-                                            onChange={() => handlePermissionChange('kelola_penduduk')}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Kelola Data Penduduk</span>
-                                    </label>
-                                    <label className="flex items-center space-x-3 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.kelola_agenda}
-                                            onChange={() => handlePermissionChange('kelola_agenda')}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Kelola Agenda</span>
-                                    </label>
-                                    <label className="flex items-center space-x-3 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.kelola_surat}
-                                            onChange={() => handlePermissionChange('kelola_surat')}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Kelola Surat Menyurat</span>
-                                    </label>
-                                    <label className="flex items-center space-x-3 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.lihat_laporan}
-                                            onChange={() => handlePermissionChange('lihat_laporan')}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Lihat Laporan</span>
-                                    </label>
-                                    <label className="flex items-center space-x-3 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.kelola_keuangan}
-                                            onChange={() => handlePermissionChange('kelola_keuangan')}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Kelola Keuangan</span>
-                                    </label>
-                                    <label className="flex items-center space-x-3 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={data.permissions.kelola_pengaturan}
-                                            onChange={() => handlePermissionChange('kelola_pengaturan')}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-5 w-5"
-                                        />
-                                        <span className="text-gray-700">Kelola Pengaturan</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <hr className="my-6 border-gray-200" />
 
                             <div className="flex justify-end gap-3">
                                 <Link
