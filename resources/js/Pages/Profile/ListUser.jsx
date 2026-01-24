@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 export default function ListUser({ users: initialUsers = [], statistics = {} }) {
-    const { flash } = usePage().props;
+    const { flash, auth } = usePage().props;
     const [searchQuery, setSearchQuery] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
 
@@ -257,6 +257,7 @@ export default function ListUser({ users: initialUsers = [], statistics = {} }) 
                                                                 <button
                                                                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                                     title="Hapus"
+                                                                    onClick={() => handleDeleteUser(user)}
                                                                 >
                                                                     <Trash2 size={18} />
                                                                 </button>

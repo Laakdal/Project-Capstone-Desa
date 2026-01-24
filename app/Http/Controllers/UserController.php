@@ -94,7 +94,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'username' => 'required|string|max:255|unique:users',
+            'username' => 'nullable|string|max:255|unique:users',
             'phone' => 'nullable|string|max:20',
             'nik' => 'nullable|string|max:20',
             'password' => 'required|string|min:8',
@@ -105,10 +105,13 @@ class UserController extends Controller
             'permissions' => 'nullable|array',
         ]);
 
+        // Auto-generate username from email if not provided
+        $username = $validated['username'] ?? explode('@', $validated['email'])[0];
+
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'username' => $validated['username'],
+            'username' => $username,
             'phone' => $validated['phone'],
             'nik' => $validated['nik'],
             'password' => \Illuminate\Support\Facades\Hash::make($validated['password']),

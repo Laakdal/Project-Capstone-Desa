@@ -68,12 +68,21 @@ class DashboardController extends Controller
                 'waiting_approval' => Letter::where('user_id', $user->id)
                     ->whereIn('status', [Letter::STATUS_SENT, Letter::STATUS_CONTINUED])
                     ->count(),
+                'rejected' => Letter::where('user_id', $user->id)
+                    ->where('status', Letter::STATUS_REJECTED)
+                    ->count(),
                 'dispositions' => 0, // TODO: Implement dispositions
             ];
             
-            // Get recent letters for Pegawai
+            // Get recent letters for Pegawai that need action
             $pendingLetters = Letter::where('user_id', $user->id)
-                ->whereIn('status', [Letter::STATUS_DRAFT, Letter::STATUS_SENT, Letter::STATUS_CONTINUED])
+                ->whereIn('status', [
+                    Letter::STATUS_DRAFT, 
+                    Letter::STATUS_SENT, 
+                    Letter::STATUS_CONTINUED,
+                    Letter::STATUS_REJECTED,  // Need to fix/resubmit
+                    Letter::STATUS_REVOKED,   // Need to revise
+                ])
                 ->with(['user'])
                 ->latest()
                 ->limit(5)

@@ -1,7 +1,7 @@
 // Template Generator Helper
 // Using HTML tags that Tiptap editor supports (center tag, align attribute)
 
-export const generateLetterTemplate = (type, user) => {
+export const generateLetterTemplate = (type, user, metadata = {}) => {
     const today = new Date().toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'long',

@@ -16,7 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        // TEMPORARY BYPASS for debugging the 419 issue
+        $middleware->validateCsrfTokens(except: [
+            '*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -29,6 +29,16 @@ export default function LetterManagement({
     const isArsip = isSekdes || isKades;
     const pageTitle = isArsip ? 'Arsip' : 'Pengelolaan Surat';
 
+    // Show flash messages
+    useEffect(() => {
+        if (flash?.success) {
+            toast.success(flash.success);
+        }
+        if (flash?.error) {
+            toast.error(flash.error);
+        }
+    }, [flash]);
+
     // Get correct route based on role
     const getIndexRoute = () => {
         return isArsip ? '/arsip' : '/pengelolaan-surat';
@@ -155,12 +165,29 @@ export default function LetterManagement({
         }
     };
 
+    // Delete draft letter
+    const handleDelete = (letterId) => {
+        if (confirm('Apakah Anda yakin ingin menghapus surat draft ini?\n\nTindakan ini tidak dapat dibatalkan.')) {
+            router.delete(route('letters.destroy', letterId), {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Surat berhasil dihapus');
+                },
+                onError: (errors) => {
+                    const errorMessage = errors?.message || Object.values(errors)[0] || 'Gagal menghapus surat';
+                    toast.error(errorMessage);
+                },
+            });
+        }
+    };
+
     // Get status badge
     const getStatusBadge = (status) => {
         const statusMap = {
             'draft': { label: 'Draft', color: 'bg-gray-100 text-gray-800' },
             'sent': { label: 'Terkirim', color: 'bg-blue-100 text-blue-800' },
-            'revoked': { label: 'Dikembalikan', color: 'bg-yellow-100 text-yellow-800' },
+            'revoked': { label: 'Perlu Direvisi', color: 'bg-yellow-100 text-yellow-800' },
             'continued': { label: 'Diteruskan', color: 'bg-orange-100 text-orange-800' },
             'approved': { label: 'Disetujui', color: 'bg-green-100 text-green-800' },
             'rejected': { label: 'Ditolak', color: 'bg-red-100 text-red-800' },
@@ -175,7 +202,7 @@ export default function LetterManagement({
             <Sidebar />
 
             <div className="flex-1 flex flex-col overflow-hidden">
-                <Topbar />
+                <Topbar pageTitle="Arsip Surat" />
 
                 <main className="flex-1 overflow-y-auto p-6">
                     {/* Header */}
@@ -464,6 +491,39 @@ export default function LetterManagement({
                                                                             </a>
                                                                         </>
                                                                     )}
+
+                                                                    {/* Edit/Revisi button for draft or revoked letters (Pegawai only) */}
+                                                                    {!isArsip && letter.status === 'draft' && (
+                                                                        <a
+                                                                            href={route('letters.edit', letter.id)}
+                                                                            className="text-yellow-600 hover:text-yellow-900"
+                                                                            title="Edit Surat"
+                                                                        >
+                                                                            <Edit2 className="w-4 h-4" />
+                                                                        </a>
+                                                                    )}
+                                                                    {!isArsip && letter.status === 'revoked' && (
+                                                                        <a
+                                                                            href={route('letters.edit', letter.id)}
+                                                                            className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white text-xs font-medium rounded hover:bg-yellow-600 transition-colors"
+                                                                            title="Revisi Surat"
+                                                                        >
+                                                                            <Edit2 className="w-4 h-4" />
+                                                                            Revisi
+                                                                        </a>
+                                                                    )}
+
+                                                                    {/* Delete button for draft letters (Pegawai only) */}
+                                                                    {!isArsip && letter.status === 'draft' && (
+                                                                        <button
+                                                                            onClick={() => handleDelete(letter.id)}
+                                                                            className="text-red-600 hover:text-red-900"
+                                                                            title="Hapus Surat"
+                                                                        >
+                                                                            <Trash2 className="w-4 h-4" />
+                                                                        </button>
+                                                                    )}
+
                                                                     {isArsip && (
                                                                         <>
                                                                             <button
